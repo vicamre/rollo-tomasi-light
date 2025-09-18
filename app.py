@@ -560,6 +560,5 @@ def generate_image():
 # Main
 # -----------------------------
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", "8080"))  # Light version on port 8080
-    debug = os.getenv("FLASK_ENV", "production") != "production"
-    app.run(host="0.0.0.0", port=port, debug=debug)
+    port = int(os.getenv("PORT", "10000"))  # Render default port
+    app.run(host="0.0.0.0", port=port, debug=False)
