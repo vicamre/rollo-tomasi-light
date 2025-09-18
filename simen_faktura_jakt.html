@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simen's Faktura-Jakt - Rollo Tomasi</title>
+    <style>
+        :root {
+            --neon-orange: rgba(255, 107, 53, 0.8);
+            --neon-blue: rgba(59, 130, 246, 0.8);
+            --neon-purple: rgba(147, 51, 234, 0.8);
+            --neon-green: rgba(34, 197, 94, 0.8);
+            --neon-red: rgba(239, 68, 68, 0.8);
+            --neon-yellow: rgba(234, 179, 8, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --white: #ffffff;
+            --text-primary: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            position: relative;
+            width: 1200px;
+            height: 700px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            border: 3px solid var(--neon-orange);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+            overflow: hidden;
+            display: flex;
+        }
+
+        .game-area {
+            flex: 1;
+            position: relative;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23333" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            background-size: 20px 20px;
+            background-color: rgba(0, 20, 40, 0.8);
+        }
+
+        .game-ui {
+            width: 280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--glass-border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .simen-character {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-image: url('static/assets/img/avatar/simen_1.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+            transition: all 0.1s ease;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+            border: 3px solid var(--neon-orange);
+        }
+
+        .simen-character.jumping {
+            animation: jump 0.6s ease;
+        }
+
+        .simen-character.moving-left {
+            transform: scaleX(-1);
+        }
+
+        .simen-character.moving-right {
+            transform: scaleX(1);
+        }
+
+        @keyframes jump {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .platform {
+            position: absolute;
+            background: linear-gradient(45deg, #333, #555);
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .faktura {
+            position: absolute;
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(45deg, #ffffff, #f0f0f0);
+            border: 2px solid var(--neon-yellow);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+            z-index: 5;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+        }
+
+        .faktura.ikke-lest {
+            background: linear-gradient(45deg, #ffcccc, #ff9999);
+            border-color: var(--neon-red);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+
+        .faktura.collected {
+            animation: collect 0.5s ease;
+        }
+
+        @keyframes collect {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
+            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
+
+        .score-display {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .score-display h3 {
+            color: var(--neon-orange);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 1rem;
+        }
+
+        .simen-quote {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            font-style: italic;
+            text-align: center;
+            color: var(--text-primary);
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .control-btn.active {
+            background: var(--neon-orange);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+        }
+
+        .instructions {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .instructions h4 {
+            color: var(--neon-green);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .key-icon {
+            background: var(--neon-blue);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .game-over-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .game-over-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--neon-orange);
+        }
+
+        .final-score {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+        }
+
+        .restart-btn {
+            background: var(--neon-orange);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: rgba(255, 107, 53, 0.8);
+            transform: scale(1.05);
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-orange);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .particle.blue { background: var(--neon-blue); }
+        .particle.green { background: var(--neon-green); }
+        .particle.yellow { background: var(--neon-yellow); }
+
+        .health-bar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .health-bar h4 {
+            color: var(--neon-red);
+            margin-bottom: 10px;
+        }
+
+        .health-container {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .health-heart {
+            width: 20px;
+            height: 20px;
+            background: var(--neon-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .health-heart.empty {
+            background: rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-area" id="gameArea">
+            <div class="simen-character" id="simen"></div>
+        </div>
+
+        <div class="game-ui">
+            <div class="score-display">
+                <h3>Simen's Faktura-Jakt</h3>
+                <div class="score-item">
+                    <span>Poeng:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="score-item">
+                    <span>Fakturaer:</span>
+                    <span id="fakturaer">0</span>
+                </div>
+                <div class="score-item">
+                    <span>Tid:</span>
+                    <span id="time">0</span>s
+                </div>
+                <div class="score-item">
+                    <span>Nivå:</span>
+                    <span id="level">1</span>
+                </div>
+            </div>
+
+            <div class="health-bar">
+                <h4>Simen's Energi</h4>
+                <div class="health-container" id="healthContainer">
+                    <div class="health-heart">💪</div>
+                    <div class="health-heart">💪</div>
+                    <div class="health-heart">💪</div>
+                    <div class="health-heart">💪</div>
+                    <div class="health-heart">💪</div>
+                </div>
+            </div>
+
+            <div class="simen-quote" id="simenQuote">
+                "Jeg har aldri lest en mail jeg selv har sendt"
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" id="startBtn">🚀 Start Jakt</button>
+                <button class="control-btn" id="pauseBtn">⏸️ Pause</button>
+                <button class="control-btn" id="resetBtn">🔄 Reset</button>
+            </div>
+
+            <div class="instructions">
+                <h4>🎮 Kontroller:</h4>
+                <ul>
+                    <li><span class="key-icon">←</span> Beveg venstre</li>
+                    <li><span class="key-icon">→</span> Beveg høyre</li>
+                    <li><span class="key-icon">↑</span> Hopp</li>
+                    <li><span class="key-icon">Space</span> Super-hopp</li>
+                </ul>
+                <p style="margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);">
+                    Fang flyvende fakturaer! Røde er "ikke lest" og gir ekstra poeng! 📄
+                </p>
+            </div>
+        </div>
+
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="game-over-content">
+                <h1 class="game-over-title">Faktura-Jakt Fullført!</h1>
+                <div class="final-score">Din poengsum: <span id="finalScore">0</span></div>
+                <div class="simen-quote" id="finalQuote">
+                    "Ting blir ferdige, ingen vet hvordan"
+                </div>
+                <button class="restart-btn" onclick="restartGame()">🔄 Jakt igjen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SimenFakturaJakt {
+            constructor() {
+                this.gameArea = document.getElementById('gameArea');
+                this.simen = document.getElementById('simen');
+                this.scoreElement = document.getElementById('score');
+                this.fakturaerElement = document.getElementById('fakturaer');
+                this.timeElement = document.getElementById('time');
+                this.levelElement = document.getElementById('level');
+                this.simenQuoteElement = document.getElementById('simenQuote');
+                this.gameOverScreen = document.getElementById('gameOverScreen');
+                this.finalScoreElement = document.getElementById('finalScore');
+                this.finalQuoteElement = document.getElementById('finalQuote');
+                this.healthContainer = document.getElementById('healthContainer');
+                
+                this.gameRunning = false;
+                this.gamePaused = false;
+                this.score = 0;
+                this.fakturaer = 0;
+                this.level = 1;
+                this.health = 5;
+                this.startTime = 0;
+                
+                // Simen physics
+                this.simenX = 100;
+                this.simenY = 500;
+                this.simenVelX = 0;
+                this.simenVelY = 0;
+                this.simenSpeed = 5;
+                this.jumpPower = 15;
+                this.gravity = 0.8;
+                this.onGround = false;
+                
+                // Game objects
+                this.platforms = [];
+                this.fakturaList = [];
+                this.particles = [];
+                
+                // Input
+                this.keys = {};
+                
+                this.simenQuotes = [
+                    "Jeg har aldri lest en mail jeg selv har sendt",
+                    "Ting blir ferdige, ingen vet hvordan",
+                    "Du kan ikke stå med puppan i fryseren under en debatt liksom",
+                    "Når det er tøffe tider, er det bra med en hamrende stor pikk",
+                    "Da burde vi vel strengt tatt skjære glory hole i døra",
+                    "Fakturaer er som bølger - de kommer og går",
+                    "Jeg sorterer fakturaer i søvne",
+                    "Dette er min lidenskap - organisering",
+                    "Perfekt! Akkurat som jeg forventet",
+                    "Du lærer fort, jeg liker det!",
+                    "Bra jobba! Du er på rett vei",
+                    "Jeg er imponert over hoppene dine",
+                    "Det der var et solid hopp!",
+                    "Du hopper som en profesjonell",
+                    "Fantastisk! Mer av det samme!",
+                    "Ingen vet helt hva jeg gjør, men det funker",
+                    "Virker uorganisert, men det er en del av illusjonen",
+                    "Har en stemme som både beroliger og forvirrer",
+                    "Sier crazy ting og kommer unna med det",
+                    "Gøy type som alltid har en kommentar"
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.createPlatforms();
+                this.setupEventListeners();
+                this.updateSimenPosition();
+                this.gameLoop();
+            }
+            
+            createPlatforms() {
+                this.platforms = [
+                    // Ground platforms
+                    { x: 0, y: 580, width: 200, height: 20 },
+                    { x: 250, y: 580, width: 200, height: 20 },
+                    { x: 500, y: 580, width: 200, height: 20 },
+                    { x: 750, y: 580, width: 170, height: 20 },
+                    
+                    // Mid-level platforms
+                    { x: 150, y: 450, width: 120, height: 15 },
+                    { x: 350, y: 400, width: 120, height: 15 },
+                    { x: 550, y: 350, width: 120, height: 15 },
+                    { x: 750, y: 400, width: 120, height: 15 },
+                    
+                    // High platforms
+                    { x: 100, y: 250, width: 100, height: 15 },
+                    { x: 300, y: 200, width: 100, height: 15 },
+                    { x: 500, y: 150, width: 100, height: 15 },
+                    { x: 700, y: 200, width: 100, height: 15 },
+                    
+                    // Top platforms
+                    { x: 200, y: 80, width: 80, height: 15 },
+                    { x: 450, y: 50, width: 80, height: 15 },
+                    { x: 650, y: 80, width: 80, height: 15 }
+                ];
+                
+                // Create platform elements
+                this.platforms.forEach((platform, index) => {
+                    const platformElement = document.createElement('div');
+                    platformElement.className = 'platform';
+                    platformElement.style.left = platform.x + 'px';
+                    platformElement.style.top = platform.y + 'px';
+                    platformElement.style.width = platform.width + 'px';
+                    platformElement.style.height = platform.height + 'px';
+                    platformElement.id = `platform-${index}`;
+                    this.gameArea.appendChild(platformElement);
+                });
+            }
+            
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => this.handleKeyDown(e));
+                document.addEventListener('keyup', (e) => this.handleKeyUp(e));
+                document.getElementById('startBtn').addEventListener('click', () => this.startGame());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
+                document.getElementById('resetBtn').addEventListener('click', () => this.resetGame());
+            }
+            
+            handleKeyDown(e) {
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                this.keys[e.code] = true;
+                
+                switch(e.code) {
+                    case 'ArrowUp':
+                    case 'Space':
+                        e.preventDefault();
+                        if (this.onGround) {
+                            this.simenVelY = -this.jumpPower;
+                            this.onGround = false;
+                            this.simen.classList.add('jumping');
+                            setTimeout(() => this.simen.classList.remove('jumping'), 600);
+                            
+                            if (e.code === 'Space') {
+                                this.simenVelY = -this.jumpPower * 1.3; // Super jump
+                                this.createParticles(this.simenX + 40, this.simenY + 80, 'blue');
+                            }
+                        }
+                        break;
+                }
+            }
+            
+            handleKeyUp(e) {
+                this.keys[e.code] = false;
+            }
+            
+            update() {
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                // Handle input
+                if (this.keys['ArrowLeft']) {
+                    this.simenVelX = -this.simenSpeed;
+                    this.simen.classList.add('moving-left');
+                    this.simen.classList.remove('moving-right');
+                } else if (this.keys['ArrowRight']) {
+                    this.simenVelX = this.simenSpeed;
+                    this.simen.classList.add('moving-right');
+                    this.simen.classList.remove('moving-left');
+                } else {
+                    this.simenVelX *= 0.8; // Friction
+                }
+                
+                // Apply gravity
+                this.simenVelY += this.gravity;
+                
+                // Update position
+                this.simenX += this.simenVelX;
+                this.simenY += this.simenVelY;
+                
+                // Boundary checks
+                if (this.simenX < 0) this.simenX = 0;
+                if (this.simenX > 840) this.simenX = 840; // gameArea width - simen width
+                
+                // Platform collision
+                this.checkPlatformCollision();
+                
+                // Fall death
+                if (this.simenY > 700) {
+                    this.health--;
+                    this.updateHealthDisplay();
+                    this.simenX = 100;
+                    this.simenY = 500;
+                    this.simenVelX = 0;
+                    this.simenVelY = 0;
+                    
+                    if (this.health <= 0) {
+                        this.gameOver();
+                    } else {
+                        this.showSimenQuote();
+                    }
+                }
+                
+                // Update fakturaer
+                this.updateFakturaer();
+                
+                // Update particles
+                this.updateParticles();
+                
+                // Spawn new fakturaer
+                if (Math.random() < 0.02 + this.level * 0.01) {
+                    this.spawnFaktura();
+                }
+                
+                this.updateSimenPosition();
+                this.updateUI();
+            }
+            
+            checkPlatformCollision() {
+                this.onGround = false;
+                
+                this.platforms.forEach(platform => {
+                    // Check if Simen is overlapping with platform
+                    if (this.simenX < platform.x + platform.width &&
+                        this.simenX + 80 > platform.x &&
+                        this.simenY < platform.y + platform.height &&
+                        this.simenY + 80 > platform.y) {
+                        
+                        // Landing on top of platform
+                        if (this.simenVelY > 0 && this.simenY < platform.y) {
+                            this.simenY = platform.y - 80;
+                            this.simenVelY = 0;
+                            this.onGround = true;
+                        }
+                        // Hitting platform from below
+                        else if (this.simenVelY < 0 && this.simenY > platform.y) {
+                            this.simenY = platform.y + platform.height;
+                            this.simenVelY = 0;
+                        }
+                        // Side collisions
+                        else if (this.simenVelX > 0 && this.simenX < platform.x) {
+                            this.simenX = platform.x - 80;
+                            this.simenVelX = 0;
+                        }
+                        else if (this.simenVelX < 0 && this.simenX > platform.x + platform.width) {
+                            this.simenX = platform.x + platform.width;
+                            this.simenVelX = 0;
+                        }
+                    }
+                });
+            }
+            
+            spawnFaktura() {
+                const faktura = document.createElement('div');
+                faktura.className = 'faktura';
+                
+                const isIkkeLest = Math.random() < 0.3;
+                if (isIkkeLest) {
+                    faktura.classList.add('ikke-lest');
+                    faktura.textContent = 'IKKE LEST';
+                } else {
+                    faktura.textContent = 'FAKTURA';
+                }
+                
+                const startX = Math.random() * 880;
+                const startY = -50;
+                
+                faktura.style.left = startX + 'px';
+                faktura.style.top = startY + 'px';
+                
+                faktura.dataset.x = startX;
+                faktura.dataset.y = startY;
+                faktura.dataset.velY = Math.random() * 2 + 1;
+                faktura.dataset.velX = (Math.random() - 0.5) * 2;
+                faktura.dataset.points = isIkkeLest ? 50 : 20;
+                
+                this.gameArea.appendChild(faktura);
+                this.fakturaList.push(faktura);
+            }
+            
+            updateFakturaer() {
+                this.fakturaList.forEach((faktura, index) => {
+                    let x = parseFloat(faktura.dataset.x);
+                    let y = parseFloat(faktura.dataset.y);
+                    let velY = parseFloat(faktura.dataset.velY);
+                    let velX = parseFloat(faktura.dataset.velX);
+                    
+                    x += velX;
+                    y += velY;
+                    
+                    faktura.dataset.x = x;
+                    faktura.dataset.y = y;
+                    faktura.style.left = x + 'px';
+                    faktura.style.top = y + 'px';
+                    
+                    // Check collision with Simen
+                    if (x < this.simenX + 80 &&
+                        x + 40 > this.simenX &&
+                        y < this.simenY + 80 &&
+                        y + 30 > this.simenY) {
+                        
+                        const points = parseInt(faktura.dataset.points);
+                        this.score += points;
+                        this.fakturaer++;
+                        
+                        faktura.classList.add('collected');
+                        this.createParticles(x + 20, y + 15, faktura.classList.contains('ikke-lest') ? 'yellow' : 'green');
+                        this.showSimenQuote();
+                        
+                        setTimeout(() => {
+                            if (faktura.parentNode) {
+                                this.gameArea.removeChild(faktura);
+                            }
+                        }, 500);
+                        
+                        this.fakturaList.splice(index, 1);
+                    }
+                    // Remove if off screen
+                    else if (y > 700) {
+                        if (faktura.parentNode) {
+                            this.gameArea.removeChild(faktura);
+                        }
+                        this.fakturaList.splice(index, 1);
+                    }
+                });
+            }
+            
+            createParticles(x, y, color = 'orange') {
+                for (let i = 0; i < 8; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = `particle ${color}`;
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    
+                    const velX = (Math.random() - 0.5) * 10;
+                    const velY = (Math.random() - 0.5) * 10 - 5;
+                    
+                    particle.dataset.velX = velX;
+                    particle.dataset.velY = velY;
+                    particle.dataset.life = 30;
+                    
+                    this.gameArea.appendChild(particle);
+                    this.particles.push(particle);
+                }
+            }
+            
+            updateParticles() {
+                this.particles.forEach((particle, index) => {
+                    let x = parseFloat(particle.style.left);
+                    let y = parseFloat(particle.style.top);
+                    let velX = parseFloat(particle.dataset.velX);
+                    let velY = parseFloat(particle.dataset.velY);
+                    let life = parseInt(particle.dataset.life);
+                    
+                    x += velX;
+                    y += velY;
+                    velY += 0.3; // Gravity
+                    life--;
+                    
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    particle.dataset.velX = velX;
+                    particle.dataset.velY = velY;
+                    particle.dataset.life = life;
+                    particle.style.opacity = life / 30;
+                    
+                    if (life <= 0) {
+                        if (particle.parentNode) {
+                            this.gameArea.removeChild(particle);
+                        }
+                        this.particles.splice(index, 1);
+                    }
+                });
+            }
+            
+            updateSimenPosition() {
+                this.simen.style.left = this.simenX + 'px';
+                this.simen.style.top = this.simenY + 'px';
+            }
+            
+            updateHealthDisplay() {
+                const hearts = this.healthContainer.querySelectorAll('.health-heart');
+                hearts.forEach((heart, index) => {
+                    if (index < this.health) {
+                        heart.classList.remove('empty');
+                    } else {
+                        heart.classList.add('empty');
+                    }
+                });
+            }
+            
+            updateUI() {
+                this.scoreElement.textContent = this.score;
+                this.fakturaerElement.textContent = this.fakturaer;
+                this.timeElement.textContent = Math.floor((Date.now() - this.startTime) / 1000);
+                this.levelElement.textContent = this.level;
+                
+                // Level progression
+                if (this.fakturaer > 0 && this.fakturaer % 20 === 0) {
+                    this.level = Math.floor(this.fakturaer / 20) + 1;
+                }
+            }
+            
+            showSimenQuote() {
+                const randomQuote = this.simenQuotes[Math.floor(Math.random() * this.simenQuotes.length)];
+                this.simenQuoteElement.textContent = `"${randomQuote}"`;
+            }
+            
+            gameLoop() {
+                this.update();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+            
+            startGame() {
+                this.gameRunning = true;
+                this.gamePaused = false;
+                this.startTime = Date.now();
+                this.score = 0;
+                this.fakturaer = 0;
+                this.level = 1;
+                this.health = 5;
+                this.simenX = 100;
+                this.simenY = 500;
+                this.simenVelX = 0;
+                this.simenVelY = 0;
+                
+                // Clear existing fakturaer and particles
+                this.fakturaList.forEach(faktura => {
+                    if (faktura.parentNode) {
+                        this.gameArea.removeChild(faktura);
+                    }
+                });
+                this.fakturaList = [];
+                
+                this.particles.forEach(particle => {
+                    if (particle.parentNode) {
+                        this.gameArea.removeChild(particle);
+                    }
+                });
+                this.particles = [];
+                
+                this.updateHealthDisplay();
+                this.updateUI();
+                this.showSimenQuote();
+            }
+            
+            togglePause() {
+                if (!this.gameRunning) return;
+                this.gamePaused = !this.gamePaused;
+            }
+            
+            resetGame() {
+                this.gameRunning = false;
+                this.gamePaused = false;
+                this.startGame();
+            }
+            
+            gameOver() {
+                this.gameRunning = false;
+                this.finalScoreElement.textContent = this.score;
+                
+                const randomQuote = this.simenQuotes[Math.floor(Math.random() * this.simenQuotes.length)];
+                this.finalQuoteElement.textContent = `"${randomQuote}"`;
+                
+                this.gameOverScreen.style.display = 'flex';
+            }
+        }
+        
+        let game;
+        
+        function restartGame() {
+            if (game) {
+                game.gameOverScreen.style.display = 'none';
+                game.startGame();
+            }
+        }
+        
+        // Start game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new SimenFakturaJakt();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rollo Tomasi Spill - Alle Spill</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts-new.css') }}">
+    <style>
+        :root {
+            --neon-orange: rgba(255, 107, 53, 0.8);
+            --neon-blue: rgba(59, 130, 246, 0.8);
+            --neon-purple: rgba(147, 51, 234, 0.8);
+            --neon-green: rgba(34, 197, 94, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --white: #ffffff;
+            --text-primary: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'NeueMachina-Regular', 'Inter', sans-serif;
+            background-image: url("{{ url_for('static', filename='assets/img/background1.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                180deg,
+                rgba(0, 0, 0, 0.4) 0%,
+                rgba(0, 0, 0, 0.6) 50%,
+                rgba(0, 0, 0, 0.8) 100%
+            );
+            z-index: -1;
+        }
+
+        /* Header */
+        .spill-header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .spill-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-family: 'Brooklyn-Bold', Arial, sans-serif;
+            color: var(--text-primary);
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+        }
+
+        .spill-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* Main Container */
+        .spill-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Game Grid - like front page */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Game Card - Glassmorphism style like front page */
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: left;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-orange);
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
+        }
+
+        .game-card.simen {
+            border-color: var(--neon-purple);
+        }
+
+        .game-card.simen:hover {
+            border-color: var(--neon-purple);
+            box-shadow: 0 20px 40px rgba(147, 51, 234, 0.3);
+        }
+
+        .game-card.magnus {
+            border-color: var(--neon-green);
+        }
+
+        .game-card.magnus:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.3);
+        }
+
+        .game-card.quiz {
+            border-color: var(--neon-blue);
+        }
+
+        .game-card.quiz:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .game-card.thomas {
+            border-color: var(--neon-orange);
+        }
+
+        .game-card.thomas:hover {
+            border-color: var(--neon-orange);
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Card Label - like front page */
+        .card-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            font-family: 'Brooklyn-Bold', Arial, sans-serif;
+        }
+
+        .game-description {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+
+        /* Card Arrow - like front page */
+        .card-arrow {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            font-size: 1.5rem;
+            color: var(--neon-purple);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover .card-arrow {
+            transform: translateX(5px);
+            color: var(--neon-orange);
+        }
+
+        /* Back Button */
+        .back-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            border-color: var(--neon-orange);
+            color: var(--neon-orange);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .spill-title {
+                font-size: 2rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .game-card {
+                min-height: 250px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Overlay -->
+    <div class="background-overlay"></div>
+
+    <!-- Header -->
+    <div class="spill-header">
+        <h1 class="spill-title">ROLLO TOMASI SPILL</h1>
+        <p class="spill-subtitle">Velg ditt favorittspill og begynn å spille!</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="spill-container">
+        <!-- Games Grid -->
+        <div class="games-grid">
+            <!-- Seil Thomas Hjem -->
+            <a href="{{ url_for('seil_thomas_hjem') }}" class="game-card thomas">
+                <div class="card-label">SEILING</div>
+                <h2 class="game-title">Seil Thomas Hjem</h2>
+                <p class="game-description">
+                    Navigér gjennom fjordene uten å treffe skjær. Thomas må hjem til middag!
+                </p>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- Simen skyter fakturaer -->
+            <a href="{{ url_for('simen_klikk_spill') }}" class="game-card simen">
+                <div class="card-label">FAKTURAER</div>
+                <h2 class="game-title">Simen skyter fakturaer</h2>
+                <p class="game-description">
+                    Klikk på de fargerike sirkelene som dukker opp! Få poeng for hver klikk og hør Simen-sitater.
+                </p>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- Magnus på Bøttehatt Jakt -->
+            <a href="{{ url_for('magnus_hat_collector') }}" class="game-card magnus">
+                <div class="card-label">BØTTEHATT</div>
+                <h2 class="game-title">Magnus på Bøttehatt Jakt</h2>
+                <p class="game-description">
+                    Samle bøttehatter med Magnus! Jo sjeldnere hatten er, jo bedre. Se hvor mange du kan samle!
+                </p>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- Hvem Sa Det Quiz -->
+            <a href="{{ url_for('hvem_sa_det') }}" class="game-card quiz">
+                <div class="card-label">QUIZ</div>
+                <h2 class="game-title">Hvem Sa Det?</h2>
+                <p class="game-description">
+                    Gjett om Thomas, Magnus eller Simen sa det! Test din kunnskap om kollegaene med 15 utfordrende sitater.
+                </p>
+                <span class="card-arrow">→</span>
+            </a>
+        </div>
+
+        <!-- Back Button -->
+        <div class="back-section">
+            <a href="{{ url_for('index') }}" class="back-btn">← Tilbake til hjem</a>
+        </div>
+    </div>
+</body>
+</html>

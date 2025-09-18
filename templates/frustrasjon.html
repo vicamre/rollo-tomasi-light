@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts-new.css') }}">
+    <meta charset="UTF-8">
+    <title>Frustrasjonsutløp – Rollo Tomasi</title>
+    <style>
+        :root {
+            --neon-orange: rgba(255, 107, 53, 0.7);
+            --neon-blue: rgba(59, 130, 246, 0.7);
+            --neon-purple: rgba(147, 51, 234, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --white: #ffffff;
+            --text-primary: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'NeueMachina-Regular', 'Inter', sans-serif;
+            background-image: url("{{ url_for('static', filename='assets/img/bk-test19.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Background Effects */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            z-index: -2;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: -1;
+        }
+
+        /* Animated background shapes */
+        .hero-bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+
+        .shape-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--neon-orange);
+            top: -200px;
+            right: -200px;
+            animation: float-slow 20s ease-in-out infinite;
+        }
+
+        .shape-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--neon-blue);
+            bottom: -100px;
+            left: -100px;
+            animation: float-slow 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            33% { transform: translateY(-30px) translateX(30px); }
+            66% { transform: translateY(30px) translateX(-20px); }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 100;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo img {
+            height: 50px;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.3));
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+        }
+
+        .back-link:hover {
+            color: var(--white);
+            border-color: var(--neon-orange);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        /* Main Container */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: calc(100vh - 110px);
+            gap: 40px;
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Left Content */
+        .content-left {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .content-box h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            font-family: 'NeueMachina-Ultrabold', Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 107, 53, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.3));
+        }
+
+        /* Controls */
+        .controls {
+            margin-bottom: 30px;
+        }
+
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .target-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .target-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-orange);
+            transform: translateY(-2px);
+        }
+
+        .target-button.selected {
+            background: rgba(255, 107, 53, 0.2);
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .roast-button {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.8), rgba(255, 107, 53, 0.6));
+            border: none;
+            color: var(--white);
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'NeueMachina-Regular', Arial, sans-serif;
+        }
+
+        .roast-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 1), rgba(255, 107, 53, 0.8));
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .roast-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Results */
+        .resultat {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: rgba(135, 206, 235, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+
+        /* Right Content - Image */
+        .content-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-frame {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 4/5;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+        }
+
+        .side-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8);
+        }
+
+        /* Therapy Widget */
+        .therapy-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 350px;
+            max-height: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            z-index: 2000;
+            transition: all 0.3s ease;
+        }
+
+        .therapy-widget.collapsed {
+            height: 70px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .therapy-widget.hidden {
+            display: none;
+        }
+
+        .therapy-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            height: 70px;
+            cursor: pointer;
+        }
+
+        .therapy-logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 50%;
+            border: 1px solid var(--neon-blue);
+        }
+
+        .therapy-logo img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .therapy-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .therapy-input {
+            display: flex;
+            padding: 15px;
+            gap: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .therapy-input input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .therapy-input button {
+            background: var(--neon-blue);
+            border: none;
+            color: var(--white);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: auto;
+        }
+
+        /* Messages */
+        .message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            max-width: 85%;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        .user-message {
+            background: rgba(255, 107, 53, 0.3);
+            margin-left: auto;
+            text-align: right;
+            color: var(--white);
+        }
+
+        .ai-message {
+            background: rgba(59, 130, 246, 0.3);
+            margin-right: auto;
+            color: var(--white);
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+
+        .image-modal-content {
+            max-width: 80vw;
+            max-height: 80vh;
+        }
+
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 15px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--neon-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .therapy-widget {
+                width: calc(100vw - 20px);
+                right: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+            
+            .main-container {
+                padding: 20px;
+            }
+            
+            .content-box {
+                padding: 30px 20px;
+            }
+            
+            .content-box h1 {
+                font-size: 2rem;
+            }
+            
+            .target-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container"></div>
+    <div class="grain-overlay"></div>
+    <div class="vignette"></div>
+    
+    <div class="hero-bg-elements">
+        <div class="bg-shape shape-1"></div>
+        <div class="bg-shape shape-2"></div>
+    </div>
+
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='assets/img/rollo-logo.png') }}" alt="Rollo Tomasi Logo">
+        </div>
+        <a href="{{ url_for('index') }}" class="back-link">← Tilbake til hovedsiden</a>
+    </header>
+
+    <main class="main-container">
+        <div class="content-left">
+            <div class="content-box">
+                <h1>Hvem er du irritert på?</h1>
+                <div class="controls">
+                    <div class="target-grid">
+                        <button class="target-button" data-target="thomas">Thomas</button>
+                        <button class="target-button" data-target="simen">Simen</button>
+                        <button class="target-button" data-target="magnus">Magnus</button>
+                        <button class="target-button" data-target="victoria">Victoria</button>
+                        <button class="target-button" data-target="verden">Verden</button>
+                        <button class="target-button" data-target="kanal">KANAL</button>
+                    </div>
+                    <button id="roast-button" class="roast-button" disabled>Få utløp</button>
+                </div>
+
+                <div id="resultat" class="resultat">Velg hvem du er irritert på, så skal vi hjelpe deg med utløp...</div>
+            </div>
+        </div>
+
+        <div class="content-right">
+            <div class="image-frame">
+                <img src="{{ url_for('static', filename='assets/img/bilde_3.png') }}" alt="Stemningsbilde" class="side-image">
+            </div>
+        </div>
+    </main>
+    
+    <div id="therapy-widget" class="therapy-widget collapsed hidden">
+        <div class="therapy-header">
+            <div class="therapy-logo">
+                <img src="{{ url_for('static', filename='assets/img/ikon/chat.png') }}" alt="Rollo Terapi">
+            </div>
+            <span style="font-weight: 600; flex-grow: 1;">Rollo Terapi GPT</span>
+            <button id="close-therapy" class="close-button">&times;</button>
+        </div>
+        <div id="therapy-messages" class="therapy-messages"></div>
+        <div class="therapy-input">
+            <input type="text" id="therapy-input-field" placeholder="Skriv her...">
+            <button id="therapy-send-button">Send</button>
+        </div>
+    </div>
+    
+    <div id="loader-modal" class="modal hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="image-modal" class="modal hidden">
+        <div class="image-modal-content">
+            <img id="modal-image" src="" alt="Generert visdom">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Globale variabler
+            let selectedTarget = '';
+            let conversationHistory = [];
+
+            // Element referanser
+            const roastButton = document.getElementById('roast-button');
+            const therapyWidget = document.getElementById('therapy-widget');
+            const therapyHeader = document.querySelector('.therapy-header');
+            const therapySendButton = document.getElementById('therapy-send-button');
+            const therapyInputField = document.getElementById('therapy-input-field');
+            const loaderModal = document.getElementById('loader-modal');
+            const imageModal = document.getElementById('image-modal');
+            const resultatDiv = document.getElementById('resultat');
+            const targetButtons = document.querySelectorAll('.target-button');
+
+            // Target selection
+            targetButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove selected class from all buttons
+                    targetButtons.forEach(btn => btn.classList.remove('selected'));
+                    
+                    // Add selected class to clicked button
+                    button.classList.add('selected');
+                    selectedTarget = button.dataset.target;
+                    
+                    // Enable roast button
+                    roastButton.disabled = false;
+                    
+                    resultatDiv.textContent = `Du har valgt ${button.textContent}. Klar for utløp?`;
+                });
+            });
+
+            // Hovedfunksjon - Få roast & start terapi
+            roastButton.addEventListener('click', async () => {
+                if (!selectedTarget) return;
+
+                setLoadingState(true, 'Fornærmer...');
+                resultatDiv.textContent = "AI-en brygger på en fornærmelse...";
+                therapyWidget.classList.remove('hidden');
+
+                try {
+                    const res = await fetch(`/get-roast?target=${selectedTarget}`);
+                    const data = await res.json();
+                    if (data.error) throw new Error(data.error);
+
+                    resultatDiv.textContent = data.roast;
+                    startTherapy(data.initialTherapyMessage);
+
+                } catch (error) {
+                    resultatDiv.textContent = "Noe gikk galt. Antakelig er Thomas skyld i det.";
+                    console.error("Feil under henting av roast:", error);
+                } finally {
+                    setLoadingState(false, 'Få utløp');
+                }
+            });
+
+
+            // Terapi funktionalitet
+            function startTherapy(initialMessage) {
+                document.getElementById('therapy-messages').innerHTML = '';
+                conversationHistory = [];
+                addMessageToTherapy(initialMessage, 'ai-message');
+                therapyWidget.classList.remove('collapsed');
+            }
+
+            async function handleTherapySend() {
+                const userText = therapyInputField.value.trim();
+                if (userText === '') return;
+                addMessageToTherapy(userText, 'user-message');
+                therapyInputField.value = '';
+
+                try {
+                    const res = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ history: conversationHistory, target: selectedTarget }) 
+                    });
+                    const data = await res.json();
+                    if (data.error) throw new Error(data.error);
+                    addMessageToTherapy(data.reply, 'ai-message');
+                } catch (error) {
+                    addMessageToTherapy("Jeg tror jeg trenger en terapeut selv nå.", 'ai-message');
+                    console.error("Feil i chat:", error);
+                }
+            }
+
+            function addMessageToTherapy(text, className) {
+                const messagesDiv = document.getElementById('therapy-messages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${className}`;
+                messageDiv.textContent = text;
+                messagesDiv.appendChild(messageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                // Update conversation history
+                if (!className.includes('typing')) {
+                    const role = className.includes('user-message') ? 'user' : 'assistant';
+                    conversationHistory.push({ role, content: text });
+                    
+                    // Keep history manageable
+                    if (conversationHistory.length > 20) {
+                        conversationHistory = conversationHistory.slice(-20);
+                    }
+                }
+            }
+
+            function setLoadingState(loading, buttonText) {
+                roastButton.disabled = loading;
+                roastButton.textContent = buttonText;
+            }
+
+            function showImageModal(imageUrl) {
+                document.getElementById('modal-image').src = imageUrl;
+                imageModal.classList.remove('hidden');
+            }
+
+            // Event listeners
+            therapyHeader.addEventListener('click', (e) => {
+                if (!e.target.closest('.close-button')) {
+                    therapyWidget.classList.toggle('collapsed');
+                }
+            });
+
+            document.getElementById('close-therapy').addEventListener('click', () => {
+                therapyWidget.classList.add('collapsed');
+            });
+
+            therapySendButton.addEventListener('click', handleTherapySend);
+
+            therapyInputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleTherapySend();
+                }
+            });
+
+            // Close modals on click
+            [loaderModal, imageModal].forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

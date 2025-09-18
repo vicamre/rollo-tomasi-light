@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnus Hat Collector - Rollo Tomasi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts-new.css') }}">
+    <style>
+        :root {
+            --neon-green: rgba(46, 204, 113, 0.8);
+            --neon-blue: rgba(59, 130, 246, 0.8);
+            --neon-purple: rgba(147, 51, 234, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --white: #ffffff;
+            --text-primary: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'NeueMachina-Regular', 'Inter', sans-serif;
+            background: #000000;
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            padding: 20px;
+        }
+
+        .game-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--neon-green);
+            text-align: center;
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.8);
+        }
+
+        .game-area {
+            position: relative;
+            width: 1000px;
+            height: 700px;
+            background: url("{{ url_for('static', filename='assets/img/spilldesign/kontor-2/rollo-kontor.png') }}");
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            border: 4px solid var(--neon-green);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(46, 204, 113, 0.6);
+            display: none;
+        }
+
+        .game-area.active {
+            display: block;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        .ui-top {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .score-display {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .time-display {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--neon-green);
+        }
+
+        .level-display {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--neon-purple);
+        }
+
+        .magnus-character {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background: url("{{ url_for('static', filename='assets/img/avatar/magnus.png') }}");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 5;
+            transition: transform 0.1s ease;
+            pointer-events: none;
+            bottom: 30px;
+        }
+
+        .magnus-character.moving {
+            animation: bounce 0.3s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .hat {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url("{{ url_for('static', filename='assets/img/ikon/hatt.png') }}");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 3;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .hat.rare {
+            animation: rareFloat 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+        }
+
+        .hat.hatt2 {
+            animation: rareFloat 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+        }
+
+        .hat.hatt3 {
+            animation: legendaryFloat 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(255, 20, 147, 0.9));
+            width: 60px;
+            height: 60px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
+
+        @keyframes rareFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-12px) rotate(8deg) scale(1.1); }
+        }
+
+        @keyframes legendaryFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-15px) rotate(10deg) scale(1.2); }
+        }
+
+        .hat-collection {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            min-width: 150px;
+        }
+
+        .hat-collection h4 {
+            margin-bottom: 10px;
+            color: var(--neon-green);
+            text-align: center;
+        }
+
+        .hat-count {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .hat-type {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hat-icon {
+            width: 20px;
+            height: 20px;
+            background: url("{{ url_for('static', filename='assets/img/ikon/hatt.png') }}");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .game-over-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .game-over-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--neon-green);
+        }
+
+        .final-score {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+        }
+
+        .magnus-quote {
+            font-size: 1.1rem;
+            font-style: italic;
+            margin-bottom: 30px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .restart-btn {
+            background: var(--neon-green);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: rgba(46, 204, 113, 0.8);
+            transform: scale(1.05);
+        }
+
+        .instructions {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px 30px;
+            font-size: 1.1rem;
+            text-align: center;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        .start-screen {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        .start-screen h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--neon-green);
+        }
+
+        .start-screen p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .start-btn {
+            background: var(--neon-green);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background: rgba(46, 204, 113, 0.8);
+            transform: scale(1.05);
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .control-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .control-btn.active {
+            background: var(--neon-green);
+            color: white;
+        }
+
+        .combo-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(46, 204, 113, 0.8);
+            pointer-events: none;
+            z-index: 20;
+            display: none;
+        }
+
+        .combo-display.show {
+            display: block;
+            animation: comboPop 0.8s ease-out;
+        }
+
+        @keyframes comboPop {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">🎩 Magnus Hat Collector</h1>
+        
+        <div class="start-screen" id="startScreen">
+            <h2>Klar for Hat Collection?</h2>
+            <p>Magnus trenger hjelp til å samle bøttehatter! Beveg ham med piltaster og fang så mange hatter som mulig. Sjeldne hatter gir mer poeng!</p>
+            <button class="start-btn" id="startGameBtn">Start Spill</button>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="game-overlay"></div>
+            
+            <div class="game-ui">
+                <div class="ui-top">
+                    <div class="score-display">
+                        Poeng: <span id="score">0</span>
+                    </div>
+                    <div class="time-display">
+                        Tid: <span id="time">60</span>s
+                    </div>
+                    <div class="level-display">
+                        Nivå: <span id="level">1</span>
+                    </div>
+                </div>
+
+                <div class="hat-collection">
+                    <h4>🎩 Hat Collection</h4>
+                    <div class="hat-count">
+                        <div class="hat-type">
+                            <div class="hat-icon"></div>
+                            <span>Vanlige:</span>
+                        </div>
+                        <span id="normalHats">0</span>
+                    </div>
+                    <div class="hat-count">
+                        <div class="hat-type">
+                            <div class="hat-icon" style="background-image: url('{{ url_for('static', filename='assets/img/ikon/hatt_2.png') }}'); filter: drop-shadow(0 0 5px gold);"></div>
+                            <span>Sjeldne:</span>
+                        </div>
+                        <span id="hatt2Hats">0</span>
+                    </div>
+                    <div class="hat-count">
+                        <div class="hat-type">
+                            <div class="hat-icon" style="background-image: url('{{ url_for('static', filename='assets/img/ikon/hatt_3.png') }}'); filter: drop-shadow(0 0 10px #ff1493);"></div>
+                            <span>Legendariske:</span>
+                        </div>
+                        <span id="hatt3Hats">0</span>
+                    </div>
+                </div>
+
+                <div class="magnus-character" id="magnus"></div>
+
+                <div class="controls">
+                    <button class="control-btn" id="pauseBtn">Pause</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions" id="instructions" style="display: none;">
+            <strong>Magnus Hat Collector:</strong> Beveg Magnus med venstre/høyre piltaster! 
+            Fanger du bøttehatter for poeng. Sjeldne hatter gir mer poeng! 
+            Samle så mange hatter som mulig!
+        </div>
+
+        <div class="combo-display" id="comboDisplay"></div>
+
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="game-over-content">
+                <h1 class="game-over-title">Hat Collection Complete!</h1>
+                <div class="final-score">Din poengsum: <span id="finalScore">0</span></div>
+                <div class="final-score">Hatter samlet: <span id="totalHats">0</span></div>
+                <div class="magnus-quote" id="magnusQuote">
+                    "Jeg har alltid rett, og nå har jeg beviset!"
+                </div>
+                <button class="restart-btn" onclick="restartGame()">Samle Flere Hatter</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MagnusHatCollector {
+            constructor() {
+                this.gameArea = document.querySelector('.game-area');
+                this.canvas = this.gameArea;
+                this.magnus = document.getElementById('magnus');
+                this.scoreElement = document.getElementById('score');
+                this.timeElement = document.getElementById('time');
+                this.gameOverScreen = document.getElementById('gameOverScreen');
+                this.finalScoreElement = document.getElementById('finalScore');
+                this.totalHatsElement = document.getElementById('totalHats');
+                this.magnusQuoteElement = document.getElementById('magnusQuote');
+                this.comboDisplay = document.getElementById('comboDisplay');
+                
+                this.gameRunning = false;
+                this.gamePaused = false;
+                this.score = 0;
+                this.timeLeft = 60;
+                this.level = 1;
+                this.combo = 0;
+                this.maxCombo = 0;
+                
+                // Hat collection tracking
+                this.hatCounts = {
+                    normal: 0,
+                    hatt2: 0,
+                    hatt3: 0
+                };
+                
+                // Faste spillområde-dimensjoner
+                this.gameWidth = 1000;
+                this.gameHeight = 700;
+                
+                this.magnusX = this.gameWidth / 2 - 90;
+                this.magnusY = this.gameHeight - 210;
+                this.magnusSpeed = 15;
+                
+                this.hats = [];
+                
+                this.hatTypes = [
+                    { type: 'normal', points: 10, spawnChance: 0.7, color: '#4ecdc4', image: 'hatt.png' },
+                    { type: 'hatt2', points: 25, spawnChance: 0.25, color: '#ff6b6b', image: 'hatt_2.png' },
+                    { type: 'hatt3', points: 50, spawnChance: 0.05, color: '#ff1493', image: 'hatt_3.png' }
+                ];
+                
+                // Sound effects
+                this.sounds = {
+                    normalHat: new Audio('{{ url_for("static", filename="assets/music/pling2.mp3") }}'),
+                    legendaryHat: new Audio('{{ url_for("static", filename="assets/music/pling1.mp3") }}'),
+                    countdown: new Audio('{{ url_for("static", filename="assets/music/countdown.mp3") }}'),
+                    gameOver: new Audio('{{ url_for("static", filename="assets/music/game-over1.mp3") }}'),
+                    backgroundMusic: new Audio('{{ url_for("static", filename="assets/music/hatt.mp3") }}')
+                };
+                
+                // Set up sound volumes
+                this.sounds.normalHat.volume = 0.3;
+                this.sounds.legendaryHat.volume = 0.4;
+                this.sounds.backgroundMusic.loop = true;
+                this.sounds.backgroundMusic.volume = 0.3;
+                
+                this.magnusQuotes = [
+                    "Jeg har alltid rett, og nå har jeg beviset!",
+                    "Thomas kan krangle så mye han vil, men jeg har flest hatter!",
+                    "Golf er bedre enn seiling, og det er fakta!",
+                    "Jeg sier akkurat det jeg tenker, og det funker!",
+                    "Flere hatter = mer kreativitet, det er vitenskap!",
+                    "Jeg samler hatter som Thomas samler seilings-trofeer!"
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.updateMagnusPosition();
+            }
+            
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => this.handleKeyDown(e));
+                document.addEventListener('keyup', (e) => this.handleKeyUp(e));
+                
+                const startGameBtn = document.getElementById('startGameBtn');
+                const pauseBtn = document.getElementById('pauseBtn');
+                
+                if (startGameBtn) {
+                    startGameBtn.addEventListener('click', () => this.showCountdown());
+                }
+                
+                if (pauseBtn) {
+                    pauseBtn.addEventListener('click', () => this.togglePause());
+                }
+            }
+            
+            showCountdown() {
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('gameArea').classList.add('active');
+                document.getElementById('instructions').style.display = 'block';
+                
+                // Play countdown sound
+                this.sounds.countdown.play().catch(e => console.log('Sound play failed:', e));
+                
+                let count = 3;
+                const countdownEl = document.createElement('div');
+                countdownEl.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-size: 8rem;
+                    font-weight: bold;
+                    color: var(--neon-green);
+                    text-shadow: 0 0 30px rgba(46, 204, 113, 0.8);
+                    z-index: 10000;
+                    text-align: center;
+                    font-family: 'NeueMachina-Regular', sans-serif;
+                `;
+                document.body.appendChild(countdownEl);
+                
+                const updateCountdown = () => {
+                    if (count > 0) {
+                        countdownEl.textContent = count;
+                        count--;
+                        setTimeout(updateCountdown, 1000);
+                    } else {
+                        countdownEl.textContent = 'START!';
+                        setTimeout(() => {
+                            document.body.removeChild(countdownEl);
+                            this.startGame();
+                        }, 500);
+                    }
+                };
+                
+                updateCountdown();
+            }
+
+            handleKeyDown(e) {
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                const oldX = this.magnusX;
+                
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        this.magnusX = Math.max(0, this.magnusX - this.magnusSpeed);
+                        break;
+                    case 'ArrowRight':
+                        this.magnusX = Math.min(this.gameWidth - 180, this.magnusX + this.magnusSpeed);
+                        break;
+                }
+                
+                if (oldX !== this.magnusX) {
+                    this.magnus.classList.add('moving');
+                    setTimeout(() => this.magnus.classList.remove('moving'), 200);
+                    this.updateMagnusPosition();
+                }
+            }
+
+            handleKeyUp(e) {
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                // Smooth movement when key is released
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    this.magnus.classList.remove('moving');
+                }
+            }
+            
+            updateMagnusPosition() {
+                this.magnus.style.left = this.magnusX + 'px';
+                this.magnus.style.top = this.magnusY + 'px';
+            }
+            
+            startGame() {
+                this.gameRunning = true;
+                this.gamePaused = false;
+                this.score = 0;
+                this.timeLeft = 60;
+                this.level = 1;
+                this.combo = 0;
+                this.hatCounts = { normal: 0, hatt2: 0, hatt3: 0 };
+                this.hats = [];
+                
+                // Start background music
+                this.sounds.backgroundMusic.play().catch(e => console.log('Music play failed:', e));
+                
+                this.updateUI();
+                
+                // Start game systems
+                this.gameLoop();
+                this.hatSpawner();
+                this.timer();
+            }
+            
+            togglePause() {
+                if (!this.gameRunning) return;
+                this.gamePaused = !this.gamePaused;
+                if (!this.gamePaused) {
+                    this.gameLoop();
+                }
+            }
+            
+            gameLoop() {
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                this.updateHats();
+                
+                requestAnimationFrame(() => this.gameLoop());
+            }
+            
+            hatSpawner() {
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                // Start raskere, øk gradvis
+                const baseInterval = 1500;
+                const levelReduction = this.level * 100;
+                const spawnInterval = Math.max(800, baseInterval - levelReduction);
+                
+                setTimeout(() => {
+                    this.spawnHat();
+                    this.hatSpawner();
+                }, spawnInterval);
+            }
+            
+            spawnHat() {
+                // Velg hat type basert på sannsynlighet
+                const random = Math.random();
+                let hatType = this.hatTypes[0]; // default normal
+                
+                for (let i = this.hatTypes.length - 1; i >= 0; i--) {
+                    if (random <= this.hatTypes[i].spawnChance) {
+                        hatType = this.hatTypes[i];
+                        break;
+                    }
+                }
+                
+                const hat = document.createElement('div');
+                hat.className = `hat ${hatType.type}`;
+                hat.style.left = Math.random() * (this.gameWidth - 50) + 'px';
+                hat.style.top = '-60px';
+                hat.style.backgroundImage = `url("{{ url_for('static', filename='assets/img/ikon/') }}${hatType.image}")`;
+                hat.dataset.type = hatType.type;
+                hat.dataset.points = hatType.points;
+                
+                this.canvas.appendChild(hat);
+                // Hat hastighet øker med level
+                const baseSpeed = 1.0;
+                const levelSpeed = this.level * 0.3;
+                const hatSpeed = baseSpeed + levelSpeed + Math.random() * 0.8;
+                
+                this.hats.push({
+                    element: hat,
+                    x: parseFloat(hat.style.left),
+                    y: parseFloat(hat.style.top),
+                    type: hatType.type,
+                    points: hatType.points,
+                    speed: hatSpeed
+                });
+            }
+            
+            updateHats() {
+                this.hats.forEach((hat, index) => {
+                    hat.y += hat.speed;
+                    hat.element.style.top = hat.y + 'px';
+                    
+                    // Sjekk om hat har nådd bunnen (Magnus' område)
+                    if (hat.y > this.magnusY - 50) {
+                        // Hat er i Magnus' område - sjekk collision
+                        this.checkHatCollision(hat, index);
+                    } else if (hat.y > this.gameHeight + 100) {
+                        // Hat er langt utenfor - fjern den
+                        hat.element.remove();
+                        this.hats.splice(index, 1);
+                        this.combo = 0; // Reset combo hvis hat går utenfor
+                    }
+                });
+            }
+            
+            checkHatCollision(hat, index) {
+                const distance = Math.abs(this.magnusX - hat.x);
+                
+                if (distance < 90) {
+                    // Hat fanget!
+                    this.catchHat(hat, index);
+                }
+            }
+            
+            catchHat(hat, index) {
+                // Legg til poeng
+                this.score += hat.points;
+                this.combo++;
+                this.maxCombo = Math.max(this.maxCombo, this.combo);
+                
+                // Play appropriate sound
+                if (hat.type === 'hatt3') {
+                    // Legendary hat sound
+                    this.sounds.legendaryHat.currentTime = 0;
+                    this.sounds.legendaryHat.play().catch(e => console.log('Sound play failed:', e));
+                } else {
+                    // Normal hat sound
+                    this.sounds.normalHat.currentTime = 0;
+                    this.sounds.normalHat.play().catch(e => console.log('Sound play failed:', e));
+                }
+                
+                // Oppdater hat collection
+                this.hatCounts[hat.type]++;
+                
+                // Vis combo hvis det er bra
+                if (this.combo > 1) {
+                    this.showCombo();
+                }
+                
+                // Vis score effect
+                this.showScoreEffect(hat.x, hat.y, hat.points, hat.type);
+                
+                // Fjern hat
+                hat.element.remove();
+                this.hats.splice(index, 1);
+                
+                this.updateUI();
+            }
+            
+            showCombo() {
+                this.comboDisplay.textContent = `${this.combo}x COMBO!`;
+                this.comboDisplay.classList.add('show');
+                
+                setTimeout(() => {
+                    this.comboDisplay.classList.remove('show');
+                }, 800);
+            }
+            
+            showScoreEffect(x, y, points, type) {
+                const effect = document.createElement('div');
+                effect.style.position = 'absolute';
+                effect.style.left = x + 'px';
+                effect.style.top = y + 'px';
+                effect.style.color = this.hatTypes.find(h => h.type === type).color;
+                effect.style.fontSize = '1.2rem';
+                effect.style.fontWeight = 'bold';
+                effect.style.pointerEvents = 'none';
+                effect.style.zIndex = '20';
+                effect.textContent = `+${points}`;
+                
+                this.canvas.appendChild(effect);
+                
+                let opacity = 1;
+                let yPos = y;
+                const animate = () => {
+                    opacity -= 0.02;
+                    yPos -= 2;
+                    effect.style.opacity = opacity;
+                    effect.style.top = yPos + 'px';
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        effect.remove();
+                    }
+                };
+                animate();
+            }
+            
+            timer() {
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                if (this.timeLeft > 0) {
+                    this.timeLeft--;
+                    this.updateUI();
+                    setTimeout(() => this.timer(), 1000);
+                } else {
+                    this.gameOver();
+                }
+            }
+            
+            updateUI() {
+                this.scoreElement.textContent = this.score;
+                this.timeElement.textContent = this.timeLeft;
+                document.getElementById('level').textContent = this.level;
+                document.getElementById('normalHats').textContent = this.hatCounts.normal;
+                document.getElementById('hatt2Hats').textContent = this.hatCounts.hatt2;
+                document.getElementById('hatt3Hats').textContent = this.hatCounts.hatt3;
+                
+                // Øk level hver 200 poeng for raskere progresjon
+                if (this.score > 0 && this.score % 200 === 0) {
+                    this.level++;
+                    this.showLevelUp();
+                }
+            }
+
+            showLevelUp() {
+                const levelUpEl = document.createElement('div');
+                levelUpEl.style.cssText = `
+                    position: fixed;
+                    top: 30%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-size: 3rem;
+                    font-weight: bold;
+                    color: var(--neon-purple);
+                    text-shadow: 0 0 20px rgba(147, 51, 234, 0.8);
+                    z-index: 10000;
+                    text-align: center;
+                    font-family: 'NeueMachina-Regular', sans-serif;
+                `;
+                levelUpEl.textContent = `NIVÅ ${this.level}!`;
+                document.body.appendChild(levelUpEl);
+                
+                setTimeout(() => {
+                    document.body.removeChild(levelUpEl);
+                }, 1500);
+            }
+            
+            gameOver() {
+                this.gameRunning = false;
+                
+                // Stop background music and play game over sound
+                this.sounds.backgroundMusic.pause();
+                this.sounds.backgroundMusic.currentTime = 0;
+                this.sounds.gameOver.play().catch(e => console.log('Sound play failed:', e));
+                
+                this.finalScoreElement.textContent = this.score;
+                this.totalHatsElement.textContent = this.hatCounts.normal + this.hatCounts.hatt2 + this.hatCounts.hatt3;
+                
+                let gameOverQuote;
+                if (this.hatCounts.hatt3 > 0) {
+                    gameOverQuote = "Jeg har alltid rett, og nå har jeg beviset!";
+                } else if (this.hatCounts.hatt2 > 5) {
+                    gameOverQuote = "Thomas kan krangle så mye han vil, men jeg har flest hatter!";
+                } else {
+                    gameOverQuote = this.magnusQuotes[Math.floor(Math.random() * this.magnusQuotes.length)];
+                }
+                this.magnusQuoteElement.textContent = `"${gameOverQuote}"`;
+                
+                this.gameOverScreen.style.display = 'flex';
+            }
+        }
+        
+        let game;
+        
+        function restartGame() {
+            if (game) {
+                game.gameOverScreen.style.display = 'none';
+                // Stop any playing sounds
+                game.sounds.backgroundMusic.pause();
+                game.sounds.backgroundMusic.currentTime = 0;
+                game.hats.forEach(h => h.element.remove());
+                game.hats = [];
+                document.getElementById('gameArea').classList.remove('active');
+                document.getElementById('startScreen').style.display = 'block';
+                document.getElementById('instructions').style.display = 'none';
+            }
+            game = new MagnusHatCollector();
+        }
+        
+        // Start game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new MagnusHatCollector();
+        });
+    </script>
+</body>
+</html>

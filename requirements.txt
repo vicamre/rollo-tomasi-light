@@ -1,0 +1,6 @@
+Flask
+Pillow
+openai
+python-dotenv
+requests
+gunicorn

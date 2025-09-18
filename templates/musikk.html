@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts-new.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rollo Musikk – Din interne Spotify</title>
+    <style>
+        :root {
+            --neon-orange: rgba(255, 107, 53, 0.7);
+            --neon-blue: rgba(59, 130, 246, 0.7);
+            --neon-purple: rgba(147, 51, 234, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --white: #ffffff;
+            --text-primary: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'NeueMachina-Regular', 'Inter', sans-serif;
+            background: #000000;
+            background-image: url("{{ url_for('static', filename='assets/img/hav1.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("{{ url_for('static', filename='assets/img/hav1.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            filter: blur(3px);
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        /* Background Effects */
+        .background-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            z-index: -3;
+        }
+
+        .hero-bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+
+        .shape-1 {
+            width: 600px;
+            height: 600px;
+            background: rgba(255, 107, 53, 0.3);
+            top: -200px;
+            right: -200px;
+            animation: float-slow 20s ease-in-out infinite;
+        }
+
+        .shape-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(59, 130, 246, 0.3);
+            bottom: -100px;
+            left: -100px;
+            animation: float-slow 25s ease-in-out infinite reverse;
+        }
+
+        .shape-3 {
+            width: 500px;
+            height: 500px;
+            background: rgba(147, 51, 234, 0.3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-slow 15s ease-in-out infinite;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            33% { transform: translateY(-30px) translateX(30px); }
+            66% { transform: translateY(30px) translateX(-20px); }
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.2; }
+        }
+
+        /* Header */
+        .tools-header {
+            position: relative;
+            z-index: 100;
+            padding: 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .back-link {
+            align-self: flex-start;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            z-index: 9999;
+            pointer-events: auto;
+        }
+
+        .back-link:hover {
+            color: #fff;
+            transform: translateX(-5px);
+        }
+
+        .tools-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.3));
+        }
+
+        /* Music Player Container */
+        .music-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Now Playing Card */
+        .now-playing {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .now-playing-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .album-art {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--neon-orange), var(--neon-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .track-info {
+            flex: 1;
+        }
+
+        .track-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .track-artist {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .control-btn.play-pause {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            background: rgba(255, 107, 53, 0.2);
+            border-color: var(--neon-orange);
+        }
+
+        .control-btn.play-pause:hover {
+            background: rgba(255, 107, 53, 0.4);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            min-width: 40px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-orange), var(--neon-purple));
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* Playlist */
+        .playlist-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .playlist-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 20px;
+        }
+
+        .playlist-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .playlist-count {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Track List */
+        .track-list {
+            list-style: none;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .track-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .track-item.active {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: var(--neon-orange);
+        }
+
+        .track-number {
+            width: 40px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .track-item:hover .track-number {
+            color: var(--text-primary);
+        }
+
+        .track-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .track-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-duration {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* Volume Control */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .volume-icon {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .volume-slider {
+            flex: 1;
+            max-width: 150px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--neon-orange);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tools-header {
+                padding: 20px;
+            }
+
+            .tools-header h1 {
+                font-size: 2rem;
+            }
+
+            .music-container {
+                padding: 0 20px 20px;
+            }
+
+            .now-playing-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .player-controls {
+                justify-content: center;
+            }
+
+            .track-item {
+                padding: 12px 0;
+            }
+
+            .track-name {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Audio element (hidden) */
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="background-blur"></div>
+    <div class="hero-bg-elements">
+        <div class="bg-shape shape-1"></div>
+        <div class="bg-shape shape-2"></div>
+        <div class="bg-shape shape-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="tools-header">
+        <a href="{{ url_for('index') }}" class="back-link">← Tilbake til hovedsiden</a>
+        <h1>Rollo Musikk</h1>
+    </header>
+
+    <!-- Music Player -->
+    <div class="music-container">
+        <!-- Now Playing Card -->
+        <div class="now-playing">
+            <div class="now-playing-content">
+                <div class="album-art">
+                    🎵
+                </div>
+                <div class="track-info">
+                    <div class="track-title" id="current-title">Velg en sang</div>
+                    <div class="track-artist">Rollo Tomasi Collection</div>
+                </div>
+                <div class="player-controls">
+                    <button class="control-btn" id="prev-btn">⏮</button>
+                    <button class="control-btn play-pause" id="play-pause-btn">▶</button>
+                    <button class="control-btn" id="next-btn">⏭</button>
+                </div>
+            </div>
+            <div class="progress-container">
+                <span class="time" id="current-time">0:00</span>
+                <div class="progress-bar" id="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <span class="time" id="total-time">0:00</span>
+            </div>
+            <div class="volume-container">
+                <span class="volume-icon">🔊</span>
+                <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="70">
+            </div>
+        </div>
+
+        <!-- Playlist -->
+        <div class="playlist-section">
+            <div class="playlist-header">
+                <h2 class="playlist-title">Din Musikk</h2>
+                <span class="playlist-count" id="track-count">5 sanger</span>
+            </div>
+            <ul class="track-list" id="track-list">
+                <li class="track-item" data-src="{{ url_for('static', filename='assets/music/rollo-Tomasi-på-Stormfull-Sjø.mp3') }}" data-cover="{{ url_for('static', filename='assets/music/rollo-album_cover.png') }}">
+                    <span class="track-number">1</span>
+                    <div class="track-details">
+                        <div class="track-name">Rollo Tomasi på Stormfull Sjø</div>
+                    </div>
+                    <span class="track-duration">-:--</span>
+                </li>
+                <li class="track-item" data-src="{{ url_for('static', filename='assets/music/_Ett-klippegeni_2.0_Orginal.mp3') }}" data-cover="{{ url_for('static', filename='assets/music/Ett-Klippegeni_Cover_04_PARTY.png') }}">
+                    <span class="track-number">2</span>
+                    <div class="track-details">
+                        <div class="track-name">Ett Klippegeni 2.0</div>
+                    </div>
+                    <span class="track-duration">-:--</span>
+                </li>
+                <li class="track-item" data-src="{{ url_for('static', filename='assets/music/seilefest indie.mp3') }}" data-cover="{{ url_for('static', filename='assets/music/rollo-album_cover.png') }}">
+                    <span class="track-number">3</span>
+                    <div class="track-details">
+                        <div class="track-name">Seilbåtfesten</div>
+                    </div>
+                    <span class="track-duration">-:--</span>
+                </li>
+                <li class="track-item" data-src="{{ url_for('static', filename='assets/music/en-Prokastinator.mp3') }}" data-cover="{{ url_for('static', filename='assets/music/vic-prokrastinator_cover.jpg') }}">
+                    <span class="track-number">4</span>
+                    <div class="track-details">
+                        <div class="track-name">En Prokrastinator</div>
+                    </div>
+                    <span class="track-duration">-:--</span>
+                </li>
+                <li class="track-item" data-src="{{ url_for('static', filename='assets/music/bo-kontor.mp3') }}" data-cover="{{ url_for('static', filename='assets/music/rollo-album_cover.png') }}">
+                    <span class="track-number">5</span>
+                    <div class="track-details">
+                        <div class="track-name">Hun skal bo på et kontor?</div>
+                    </div>
+                    <span class="track-duration">-:--</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="audio-player" preload="metadata"></audio>
+
+    <script>
+        class MusicPlayer {
+            constructor() {
+                this.audio = document.getElementById('audio-player');
+                this.trackList = document.getElementById('track-list');
+                this.playPauseBtn = document.getElementById('play-pause-btn');
+                this.prevBtn = document.getElementById('prev-btn');
+                this.nextBtn = document.getElementById('next-btn');
+                this.progressBar = document.getElementById('progress-bar');
+                this.progressFill = document.getElementById('progress-fill');
+                this.currentTimeEl = document.getElementById('current-time');
+                this.totalTimeEl = document.getElementById('total-time');
+                this.currentTitleEl = document.getElementById('current-title');
+                this.volumeSlider = document.getElementById('volume-slider');
+                
+                this.tracks = Array.from(document.querySelectorAll('.track-item'));
+                this.currentTrackIndex = 0;
+                this.isPlaying = false;
+                
+                this.init();
+            }
+            
+            init() {
+                // Event listeners
+                this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+                this.prevBtn.addEventListener('click', () => this.previousTrack());
+                this.nextBtn.addEventListener('click', () => this.nextTrack());
+                this.progressBar.addEventListener('click', (e) => this.seekTo(e));
+                this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value));
+                
+                // Track list clicks
+                this.tracks.forEach((track, index) => {
+                    track.addEventListener('click', () => this.selectTrack(index));
+                });
+                
+                // Audio events
+                this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
+                this.audio.addEventListener('timeupdate', () => this.updateProgress());
+                this.audio.addEventListener('ended', () => this.nextTrack());
+                
+                // Load durations
+                this.loadTrackDurations();
+                
+                // Set initial volume
+                this.audio.volume = 0.7;
+            }
+            
+            async loadTrackDurations() {
+                for (let i = 0; i < this.tracks.length; i++) {
+                    const track = this.tracks[i];
+                    const src = track.dataset.src;
+                    const durationEl = track.querySelector('.track-duration');
+                    
+                    try {
+                        const audio = new Audio(src);
+                        audio.addEventListener('loadedmetadata', () => {
+                            const duration = this.formatTime(audio.duration);
+                            durationEl.textContent = duration;
+                        });
+                    } catch (error) {
+                        console.log('Could not load duration for:', src);
+                    }
+                }
+            }
+            
+            selectTrack(index) {
+                if (index === this.currentTrackIndex && this.isPlaying) {
+                    this.togglePlayPause();
+                    return;
+                }
+                
+                this.currentTrackIndex = index;
+                this.loadCurrentTrack();
+                this.updateActiveTrack();
+                this.play();
+            }
+            
+            loadCurrentTrack() {
+                const track = this.tracks[this.currentTrackIndex];
+                const src = track.dataset.src;
+                const cover = track.dataset.cover;
+                const title = track.querySelector('.track-name').textContent;
+                
+                this.audio.src = src;
+                this.currentTitleEl.textContent = title;
+                
+                // Update album art
+                const albumArt = document.querySelector('.album-art');
+                if (cover) {
+                    albumArt.innerHTML = `<img src="${cover}" alt="${title}">`;
+                } else {
+                    albumArt.innerHTML = '🎵';
+                }
+            }
+            
+            updateActiveTrack() {
+                this.tracks.forEach(track => track.classList.remove('active'));
+                this.tracks[this.currentTrackIndex].classList.add('active');
+            }
+            
+            togglePlayPause() {
+                if (this.isPlaying) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            }
+            
+            play() {
+                if (!this.audio.src) {
+                    this.loadCurrentTrack();
+                }
+                
+                this.audio.play().then(() => {
+                    this.isPlaying = true;
+                    this.playPauseBtn.textContent = '⏸';
+                    this.updateActiveTrack();
+                }).catch(error => {
+                    console.error('Error playing audio:', error);
+                });
+            }
+            
+            pause() {
+                this.audio.pause();
+                this.isPlaying = false;
+                this.playPauseBtn.textContent = '▶';
+            }
+            
+            previousTrack() {
+                this.currentTrackIndex = this.currentTrackIndex > 0 
+                    ? this.currentTrackIndex - 1 
+                    : this.tracks.length - 1;
+                this.selectTrack(this.currentTrackIndex);
+            }
+            
+            nextTrack() {
+                this.currentTrackIndex = this.currentTrackIndex < this.tracks.length - 1 
+                    ? this.currentTrackIndex + 1 
+                    : 0;
+                this.selectTrack(this.currentTrackIndex);
+            }
+            
+            seekTo(e) {
+                const rect = this.progressBar.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                const seekTime = percent * this.audio.duration;
+                this.audio.currentTime = seekTime;
+            }
+            
+            setVolume(value) {
+                this.audio.volume = value / 100;
+            }
+            
+            updateProgress() {
+                if (this.audio.duration) {
+                    const percent = (this.audio.currentTime / this.audio.duration) * 100;
+                    this.progressFill.style.width = `${percent}%`;
+                    this.currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
+                }
+            }
+            
+            updateDuration() {
+                this.totalTimeEl.textContent = this.formatTime(this.audio.duration);
+            }
+            
+            formatTime(seconds) {
+                if (isNaN(seconds)) return '0:00';
+                
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        // Initialize player when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new MusicPlayer();
+        });
+    </script>
+</body>
+</html>

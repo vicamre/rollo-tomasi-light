@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simen's Faktura Kast - Rollo Tomasi</title>
+    <style>
+        :root {
+            --neon-orange: rgba(255, 107, 53, 0.8);
+            --neon-blue: rgba(59, 130, 246, 0.8);
+            --neon-purple: rgba(147, 51, 234, 0.8);
+            --neon-green: rgba(34, 197, 94, 0.8);
+            --neon-red: rgba(239, 68, 68, 0.8);
+            --neon-yellow: rgba(234, 179, 8, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --white: #ffffff;
+            --text-primary: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('static/assets/img/hav2.jpg') center/cover;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: crosshair;
+        }
+
+        .game-container {
+            position: relative;
+            width: 1200px;
+            height: 800px;
+            background: url('static/assets/img/spilldesign/kontor/rollo-konotr-1.png') center/cover;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 3px solid var(--neon-orange);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+            overflow: hidden;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .game-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .score-display {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .simen-character {
+            position: absolute;
+            width: 240px;
+            height: 300px;
+            background: url('static/assets/img/avatar/simen_1.png') center/cover;
+            background-size: contain;
+            background-repeat: no-repeat;
+            left: 30px;
+            bottom: 30px;
+            z-index: 50;
+            transition: transform 0.2s ease;
+        }
+
+        .simen-character.celebrating {
+            animation: celebrate 0.6s ease;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            75% { transform: scale(1.1) rotate(-3deg); }
+        }
+
+        .faktura {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 40;
+            transition: all 0.1s ease;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        
+        .faktura.type1 {
+            background-image: url('static/assets/img/ikon/faktura1.png');
+        }
+        
+        .faktura.type2 {
+            background-image: url('static/assets/img/ikon/faktura2.png');
+        }
+        
+        .faktura.type3 {
+            background-image: url('static/assets/img/ikon/faktura3.png');
+        }
+        
+        /* Fallback if icons don't exist */
+        .faktura:not(.type1):not(.type2):not(.type3) {
+            background: var(--neon-red);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .faktura:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--neon-red);
+        }
+
+        .faktura.clicked {
+            animation: explode 0.3s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 0.7; }
+            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
+
+        .simen-quote {
+            position: fixed;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--neon-orange);
+            max-width: 800px;
+            z-index: 250;
+            animation: fadeInBounce 0.8s ease;
+            text-shadow: 
+                2px 2px 0px #000,
+                -2px -2px 0px #000,
+                2px -2px 0px #000,
+                -2px 2px 0px #000,
+                0 0 10px rgba(255, 107, 53, 0.8),
+                0 0 20px rgba(255, 107, 53, 0.6);
+            font-family: 'Arial Black', Arial, sans-serif;
+            line-height: 1.2;
+            padding: 0 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        
+        @keyframes fadeInBounce {
+            0% { 
+                opacity: 0; 
+                transform: translateX(-50%) scale(0.3) translateY(-50px); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: translateX(-50%) scale(1.1) translateY(10px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateX(-50%) scale(1) translateY(0); 
+            }
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            color: var(--text-primary);
+            max-width: 600px;
+            z-index: 300;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .control-btn.active {
+            background: var(--neon-orange);
+            color: white;
+        }
+
+        .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .game-over-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .game-over-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--neon-orange);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .final-score {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .restart-btn {
+            background: var(--neon-orange);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .restart-btn:hover {
+            background: rgba(255, 107, 53, 0.8);
+            transform: scale(1.05);
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .combo-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--neon-yellow);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            z-index: 150;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .combo-display.show {
+            animation: comboShow 1s ease-out;
+        }
+
+        @keyframes comboShow {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-overlay"></div>
+        
+        <div class="game-header">
+            <div class="score-display">
+                Poeng: <span id="score">0</span>
+            </div>
+            <div class="timer-display">
+                Tid: <span id="time">60</span>s
+            </div>
+        </div>
+
+        <div class="instructions">
+            <strong>🎯 Simen's Faktura Kast:</strong> Klikk på fakturaene som flyr mot Simen for å kaste dem bort! 
+            Få poeng for hver faktura du treffer og hør Simen-sitater!
+        </div>
+
+        <div class="simen-character" id="simen"></div>
+
+        <div class="simen-quote" id="simenQuote">
+            "Fakturaer er som bølger - de kommer og går, men jeg kaster dem alle!"
+        </div>
+
+        <div class="combo-display" id="comboDisplay">COMBO x3!</div>
+
+        <div class="controls">
+            <button class="control-btn" id="startBtn">🚀 Start Spill</button>
+            <button class="control-btn" id="pauseBtn">⏸️ Pause</button>
+        </div>
+
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="game-over-content">
+                <h1 class="game-over-title">Spillet er over!</h1>
+                <div class="final-score">Din poengsum: <span id="finalScore">0</span></div>
+                <div class="simen-quote" id="finalQuote">
+                    "Du kastet fakturaer som en mester!"
+                </div>
+                <button class="restart-btn" onclick="restartGame()">🎯 Spill igjen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SimenFakturaKast {
+            constructor() {
+                this.simen = document.getElementById('simen');
+                this.scoreElement = document.getElementById('score');
+                this.timeElement = document.getElementById('time');
+                this.simenQuoteElement = document.getElementById('simenQuote');
+                this.gameOverScreen = document.getElementById('gameOverScreen');
+                this.finalScoreElement = document.getElementById('finalScore');
+                this.finalQuoteElement = document.getElementById('finalQuote');
+                this.comboDisplay = document.getElementById('comboDisplay');
+                this.gameContainer = document.querySelector('.game-container');
+                
+                this.gameRunning = false;
+                this.gamePaused = false;
+                this.score = 0;
+                this.timeLeft = 60;
+                this.fakturaCount = 0;
+                this.combo = 0;
+                this.lastHitTime = 0;
+                this.missedFakturaer = 0;
+                this.maxMisses = 5;
+                
+                // Sound effects
+                this.sounds = {
+                    hit: new Audio('static/assets/music/pling2.mp3'),
+                    countdown: new Audio('static/assets/music/countdown.mp3'),
+                    gameOver: new Audio('static/assets/music/game-over1.mp3'),
+                    backgroundMusic: new Audio('static/assets/music/faktura.mp3')
+                };
+                
+                // Set up sound volumes
+                this.sounds.hit.volume = 0.3;
+                this.sounds.backgroundMusic.loop = true;
+                this.sounds.backgroundMusic.volume = 0.3;
+                
+                this.simenQuotes = [
+                    "Fakturaer er som bølger - de kommer og går!",
+                    "Jeg kaster fakturaer som en gud!",
+                    "Ta den, din jævla faktura!",
+                    "Perfekt treff! Akkurat som jeg forventet!",
+                    "Du lærer fort, jeg liker det!",
+                    "Bra jobba! Du er på rett vei!",
+                    "Jeg er imponert over kastene dine!",
+                    "Det der var et solid kast!",
+                    "Du kaster som en profesjonell!",
+                    "Fantastisk! Mer av det samme!",
+                    "Når det er tøffe tider, kaster vi fakturaer!",
+                    "Du kan ikke stå med puppan i fryseren under en debatt liksom",
+                    "Jeg har aldri lest en mail jeg selv har sendt",
+                    "Ting blir ferdige, ingen vet hvordan",
+                    "Fakturaene kan ikke ta meg nå!",
+                    "Dette var et smart trekk!",
+                    "Jeg er kongen av faktura-kasting!"
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.updateUI();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('startBtn').addEventListener('click', () => this.startGame());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
+            }
+            
+            startGame() {
+                // Start countdown first
+                this.startCountdown();
+            }
+            
+            startCountdown() {
+                // Play countdown sound
+                this.sounds.countdown.play().catch(e => console.log('Sound play failed:', e));
+                
+                // Show countdown
+                this.showCountdown(3);
+            }
+            
+            showCountdown(count) {
+                if (count > 0) {
+                    this.simenQuoteElement.textContent = `Starter om ${count}...`;
+                    this.simenQuoteElement.style.fontSize = '3rem';
+                    this.simenQuoteElement.style.color = '#ff6b35';
+                    this.simenQuoteElement.style.animation = 'fadeInBounce 0.8s ease';
+                    
+                    setTimeout(() => {
+                        this.showCountdown(count - 1);
+                    }, 1000);
+                } else {
+                    // Start the actual game
+                    this.simenQuoteElement.style.fontSize = '1.8rem';
+                    this.simenQuoteElement.style.color = 'var(--neon-orange)';
+                    
+                    this.gameRunning = true;
+                    this.gamePaused = false;
+                    this.score = 0;
+                    this.timeLeft = 60;
+                    this.fakturaCount = 0;
+                    this.combo = 0;
+                    this.lastHitTime = 0;
+                    this.missedFakturaer = 0;
+                    
+                    // Clear existing fakturaer
+                    document.querySelectorAll('.faktura').forEach(f => f.remove());
+                    
+                    // Start background music
+                    this.sounds.backgroundMusic.play().catch(e => console.log('Music play failed:', e));
+                    
+                    this.updateUI();
+                    this.gameLoop();
+                    this.timer();
+                    this.showSimenQuote("La oss kaste noen fakturaer!");
+                    
+                    document.getElementById('startBtn').classList.add('active');
+                    document.getElementById('pauseBtn').classList.remove('active');
+                }
+            }
+            
+            togglePause() {
+                if (!this.gameRunning) return;
+                this.gamePaused = !this.gamePaused;
+                
+                if (this.gamePaused) {
+                    document.getElementById('pauseBtn').classList.add('active');
+                    document.getElementById('startBtn').classList.remove('active');
+                } else {
+                    document.getElementById('pauseBtn').classList.remove('active');
+                    document.getElementById('startBtn').classList.add('active');
+                    this.gameLoop();
+                }
+            }
+            
+            gameLoop() {
+                if (!this.gameRunning || this.gamePaused) {
+                    if (this.gameRunning && this.gamePaused) {
+                        setTimeout(() => this.gameLoop(), 100);
+                    }
+                    return;
+                }
+                
+                this.spawnFaktura();
+                this.moveFakturaer();
+                
+                // Spawn rate increases over time - gets progressively harder
+                const baseSpawnRate = 2500;
+                const difficultyIncrease = Math.floor(this.score / 50); // Every 50 points = harder
+                const timeIncrease = Math.floor((60 - this.timeLeft) / 10); // Every 10 seconds = harder
+                const spawnRate = Math.max(300, baseSpawnRate - (this.score * 5) - (difficultyIncrease * 200) - (timeIncrease * 150));
+                setTimeout(() => this.gameLoop(), spawnRate);
+            }
+            
+            spawnFaktura() {
+                const faktura = document.createElement('div');
+                
+                // Random faktura type
+                const types = ['type1', 'type2', 'type3'];
+                const randomType = types[Math.floor(Math.random() * types.length)];
+                faktura.className = `faktura ${randomType}`;
+                
+                // Fallback text if no icon
+                if (!faktura.style.backgroundImage) {
+                    faktura.textContent = 'FAKTURA';
+                }
+                
+                // Random spawn position (from edges)
+                const side = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
+                let startX, startY, targetX, targetY;
+                
+                switch(side) {
+                    case 0: // Top
+                        startX = Math.random() * 1200;
+                        startY = -60;
+                        targetX = 500 + Math.random() * 200; // Center area
+                        targetY = 350 + Math.random() * 200;
+                        break;
+                    case 1: // Right
+                        startX = 1200;
+                        startY = Math.random() * 800;
+                        targetX = 500 + Math.random() * 200;
+                        targetY = 350 + Math.random() * 200;
+                        break;
+                    case 2: // Bottom
+                        startX = Math.random() * 1200;
+                        startY = 800;
+                        targetX = 500 + Math.random() * 200;
+                        targetY = 250 + Math.random() * 350;
+                        break;
+                    case 3: // Left (avoid Simen area)
+                        startX = -50;
+                        startY = Math.random() * 600; // Upper part only
+                        targetX = 500 + Math.random() * 200;
+                        targetY = 350 + Math.random() * 200;
+                        break;
+                }
+                
+                faktura.style.left = startX + 'px';
+                faktura.style.top = startY + 'px';
+                
+                // Add click event
+                faktura.addEventListener('click', (e) => this.clickFaktura(e, faktura));
+                
+                this.gameContainer.appendChild(faktura);
+                
+                // Animate towards center - speed increases with difficulty
+                const baseSpeed = 3000;
+                const difficultyLevel = Math.floor(this.score / 30); // Every 30 points = faster
+                const speed = Math.max(1500, baseSpeed - (difficultyLevel * 200));
+                
+                setTimeout(() => {
+                    faktura.style.transition = `all ${speed}ms linear`;
+                    faktura.style.left = targetX + 'px';
+                    faktura.style.top = targetY + 'px';
+                }, 50);
+                
+                // Remove if not clicked and count as miss - timing based on speed
+                const removalTime = speed + 500;
+                setTimeout(() => {
+                    if (faktura.parentNode) {
+                        faktura.remove();
+                        this.missedFaktura();
+                    }
+                }, removalTime);
+            }
+            
+            clickFaktura(event, faktura) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                // Calculate combo
+                const now = Date.now();
+                if (now - this.lastHitTime < 1000) {
+                    this.combo++;
+                } else {
+                    this.combo = 1;
+                }
+                this.lastHitTime = now;
+                
+                // Calculate points (with combo bonus)
+                const basePoints = 10;
+                const comboBonus = this.combo > 1 ? (this.combo - 1) * 5 : 0;
+                const points = basePoints + comboBonus;
+                
+                this.score += points;
+                
+                // Play hit sound
+                this.sounds.hit.currentTime = 0; // Reset sound to beginning
+                this.sounds.hit.play().catch(e => console.log('Sound play failed:', e));
+                
+                // Show combo if > 1
+                if (this.combo > 1) {
+                    this.showCombo();
+                }
+                
+                // Animate faktura destruction
+                faktura.classList.add('clicked');
+                faktura.style.pointerEvents = 'none';
+                
+                // Simen celebrates
+                this.simen.classList.add('celebrating');
+                setTimeout(() => this.simen.classList.remove('celebrating'), 600);
+                
+                // Show quote
+                this.showSimenQuote();
+                
+                // Remove faktura
+                setTimeout(() => {
+                    if (faktura.parentNode) {
+                        faktura.remove();
+                    }
+                }, 300);
+                
+                this.updateUI();
+            }
+            
+            showCombo() {
+                this.comboDisplay.textContent = `COMBO x${this.combo}!`;
+                this.comboDisplay.classList.remove('show');
+                setTimeout(() => {
+                    this.comboDisplay.classList.add('show');
+                }, 10);
+            }
+            
+            moveFakturaer() {
+                // Fakturaer move automatically via CSS transitions
+            }
+            
+            showSimenQuote(customQuote = null) {
+                const quote = customQuote || this.simenQuotes[Math.floor(Math.random() * this.simenQuotes.length)];
+                this.simenQuoteElement.textContent = `"${quote}"`;
+                
+                // Animate quote with bounce
+                this.simenQuoteElement.style.animation = 'none';
+                setTimeout(() => {
+                    this.simenQuoteElement.style.animation = 'fadeInBounce 0.8s ease';
+                }, 10);
+                
+                // Hide after 8 seconds (much longer)
+                setTimeout(() => {
+                    this.simenQuoteElement.style.opacity = '0';
+                    setTimeout(() => {
+                        this.simenQuoteElement.style.opacity = '1';
+                    }, 1000);
+                }, 8000);
+            }
+            
+            timer() {
+                if (!this.gameRunning || this.gamePaused) {
+                    if (this.gameRunning && this.gamePaused) {
+                        setTimeout(() => this.timer(), 100);
+                    }
+                    return;
+                }
+                
+                if (this.timeLeft > 0) {
+                    this.timeLeft--;
+                    this.updateUI();
+                    setTimeout(() => this.timer(), 1000);
+                } else {
+                    this.gameOver();
+                }
+            }
+            
+            updateUI() {
+                this.scoreElement.textContent = this.score;
+                this.timeElement.textContent = this.timeLeft;
+            }
+            
+            missedFaktura() {
+                if (!this.gameRunning) return;
+                
+                this.missedFakturaer++;
+                
+                // Simen shakes in frustration
+                this.simen.classList.add('caught-animation');
+                setTimeout(() => this.simen.classList.remove('caught-animation'), 500);
+                
+                this.showSimenQuote("Faen! Jeg bommet på en faktura!");
+                
+                // Check if game over
+                if (this.missedFakturaer >= this.maxMisses) {
+                    this.gameOver();
+                }
+            }
+            
+            gameOver() {
+                this.gameRunning = false;
+                
+                // Stop background music and play game over sound
+                this.sounds.backgroundMusic.pause();
+                this.sounds.backgroundMusic.currentTime = 0;
+                this.sounds.gameOver.play().catch(e => console.log('Sound play failed:', e));
+                
+                this.finalScoreElement.textContent = this.score;
+                
+                let finalQuote;
+                if (this.score > 500) {
+                    finalQuote = "Du er kongen av faktura-kasting! Fantastisk!";
+                } else if (this.score > 200) {
+                    finalQuote = "Bra jobba! Du kaster fakturaer som en profesjonell!";
+                } else {
+                    finalQuote = "Ikke verst! Men du kan bli enda bedre til å kaste fakturaer!";
+                }
+                
+                this.finalQuoteElement.textContent = `"${finalQuote}"`;
+                this.gameOverScreen.style.display = 'flex';
+                
+                document.getElementById('startBtn').classList.remove('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+            }
+        }
+        
+        let game;
+        
+        function restartGame() {
+            if (game) {
+                game.gameOverScreen.style.display = 'none';
+                // Stop any playing sounds
+                game.sounds.backgroundMusic.pause();
+                game.sounds.backgroundMusic.currentTime = 0;
+                // Clear fakturaer
+                document.querySelectorAll('.faktura').forEach(f => f.remove());
+            }
+            game = new SimenFakturaKast();
+        }
+        
+        // Start game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new SimenFakturaKast();
+        });
+    </script>
+</body>
+</html>

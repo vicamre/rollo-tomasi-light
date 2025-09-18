@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hvem Sa Det? - Rollo Tomasi Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts-new.css') }}">
+    <style>
+        :root {
+            --neon-orange: rgba(255, 107, 53, 0.8);
+            --neon-blue: rgba(59, 130, 246, 0.8);
+            --neon-purple: rgba(147, 51, 234, 0.8);
+            --neon-green: rgba(34, 197, 94, 0.8);
+            --neon-red: rgba(239, 68, 68, 0.8);
+            --neon-yellow: rgba(234, 179, 8, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --white: #ffffff;
+            --text-primary: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'NeueMachina-Regular', 'Inter', sans-serif;
+            background: #000000;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background with image */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url("{{ url_for('static', filename='assets/img/background1.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                180deg,
+                rgba(0, 0, 0, 0.4) 0%,
+                rgba(0, 0, 0, 0.6) 50%,
+                rgba(0, 0, 0, 0.8) 100%
+            );
+        }
+
+        /* Header */
+        .quiz-header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .quiz-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+        }
+
+        .quiz-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* Main Game Container */
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Score Display */
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .score-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .score-card:hover {
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neon-orange);
+        }
+
+        /* Quote Card */
+        .quote-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-card::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 4rem;
+            color: var(--neon-orange);
+            opacity: 0.3;
+            font-family: serif;
+        }
+
+        .quote-card::after {
+            content: '"';
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 4rem;
+            color: var(--neon-orange);
+            opacity: 0.3;
+            font-family: serif;
+        }
+
+        .quote-text {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            font-style: italic;
+            margin: 20px 0;
+            z-index: 2;
+            position: relative;
+        }
+
+        .quote-number {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        /* Answer Options */
+        .answer-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .answer-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .answer-btn:hover::before {
+            left: 100%;
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-orange);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .answer-btn.thomas {
+            border-color: var(--neon-blue);
+        }
+
+        .answer-btn.magnus {
+            border-color: var(--neon-green);
+        }
+
+        .answer-btn.thomas:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .answer-btn.magnus:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+
+        .answer-btn.simen {
+            border-color: var(--neon-purple);
+        }
+
+        .answer-btn.simen:hover {
+            border-color: var(--neon-purple);
+            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.3);
+        }
+
+        .answer-btn.correct {
+            border-color: var(--neon-green);
+            background: rgba(34, 197, 94, 0.2);
+            animation: correctPulse 1.2s ease;
+        }
+
+        .answer-btn.incorrect {
+            border-color: var(--neon-red);
+            background: rgba(239, 68, 68, 0.2);
+            animation: shake 1.2s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            25% { 
+                transform: scale(1.1);
+                box-shadow: 0 0 20px 10px rgba(34, 197, 94, 0.3);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 30px 15px rgba(34, 197, 94, 0.2);
+            }
+            75% { 
+                transform: scale(1.08);
+                box-shadow: 0 0 25px 12px rgba(34, 197, 94, 0.25);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { 
+                transform: translateX(0) rotate(0deg);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            10% { 
+                transform: translateX(-10px) rotate(-2deg);
+                box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.4);
+            }
+            20% { 
+                transform: translateX(10px) rotate(2deg);
+                box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.4);
+            }
+            30% { 
+                transform: translateX(-8px) rotate(-1deg);
+                box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.4);
+            }
+            40% { 
+                transform: translateX(8px) rotate(1deg);
+                box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.4);
+            }
+            50% { 
+                transform: translateX(-6px) rotate(-0.5deg);
+                box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.4);
+            }
+            60% { 
+                transform: translateX(6px) rotate(0.5deg);
+                box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.4);
+            }
+        }
+
+        /* Character Images */
+        .character-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 2px solid var(--glass-border);
+        }
+
+        /* Result Screen */
+        .result-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .result-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scoreUpdate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: var(--neon-orange); }
+            100% { transform: scale(1); }
+        }
+
+        .score-updating {
+            animation: scoreUpdate 0.6s ease;
+        }
+
+        .result-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--neon-orange);
+        }
+
+        .result-score {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+        }
+
+        .result-message {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .restart-btn {
+            background: var(--neon-orange);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .restart-btn:hover {
+            background: rgba(255, 107, 53, 0.8);
+            transform: scale(1.05);
+        }
+
+        .home-btn {
+            background: transparent;
+            border: 2px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .home-btn:hover {
+            border-color: var(--neon-orange);
+            color: var(--neon-orange);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--glass-border);
+            border-top: 3px solid var(--neon-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .answer-options {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .quiz-title {
+                font-size: 2rem;
+            }
+            
+            .score-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .answer-options {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .quote-card {
+                padding: 30px 20px;
+            }
+            
+            .quote-text {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="background-container">
+        <div class="background-overlay"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="quiz-header">
+        <h1 class="quiz-title">HVEM SA DET?</h1>
+        <p class="quiz-subtitle">Kan du gjette om Thomas eller Magnus sa det?</p>
+    </div>
+
+    <!-- Main Game Container -->
+    <div class="game-container">
+        <!-- Score Display -->
+        <div class="score-container">
+            <div class="score-card">
+                <div class="score-label">Spørsmål</div>
+                <div class="score-value" id="currentQuestion">1</div>
+            </div>
+            <div class="score-card">
+                <div class="score-label">Riktige</div>
+                <div class="score-value" id="correctAnswers">0</div>
+            </div>
+            <div class="score-card">
+                <div class="score-label">Feil</div>
+                <div class="score-value" id="wrongAnswers">0</div>
+            </div>
+        </div>
+
+        <!-- Quote Card -->
+        <div class="quote-card">
+            <div class="quote-number" id="questionNumber">1/15</div>
+            <div class="quote-text" id="quoteText">
+                Laster spørsmål...
+            </div>
+            <div class="loading" id="loadingIndicator">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+
+        <!-- Answer Options -->
+        <div class="answer-options" id="answerOptions" style="display: none;">
+            <button class="answer-btn thomas" data-answer="thomas">
+                <img src="{{ url_for('static', filename='assets/img/avatar/crop/thomas_1.png') }}" alt="Thomas" class="character-img">
+                <div>THOMAS</div>
+            </button>
+            <button class="answer-btn magnus" data-answer="magnus">
+                <img src="{{ url_for('static', filename='assets/img/avatar/crop/magnus.png') }}" alt="Magnus" class="character-img">
+                <div>MAGNUS</div>
+            </button>
+            <button class="answer-btn simen" data-answer="simen">
+                <img src="{{ url_for('static', filename='assets/img/avatar/crop/simen_1.png') }}" alt="Simen" class="character-img">
+                <div>SIMEN</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div class="result-screen" id="resultScreen">
+        <div class="result-content">
+            <h1 class="result-title" id="resultTitle">Gratulerer!</h1>
+            <div class="result-score" id="resultScore">Du fikk 12/15 riktige!</div>
+            <div class="result-message" id="resultMessage">
+                Du kjenner Thomas, Magnus og Simen godt! Du vet hvem som sier hva.
+            </div>
+            <button class="restart-btn" onclick="restartQuiz()">Spill igjen</button>
+            <a href="{{ url_for('index') }}" class="home-btn">Tilbake til hjem</a>
+        </div>
+    </div>
+
+    <script>
+        class HvemSaDetQuiz {
+            constructor() {
+                // Initialize audio
+                this.correctSound = new Audio("{{ url_for('static', filename='assets/music/pling2.mp3') }}");
+                this.incorrectSound = new Audio("{{ url_for('static', filename='assets/music/game-over2.mp3') }}");
+                
+                // Set volume levels
+                this.correctSound.volume = 0.7;
+                this.incorrectSound.volume = 0.3; // Lower volume for game over sound
+                
+                this.quotes = [
+                    {
+                        text: "Flørting er ikke meetoo",
+                        answer: "thomas",
+                        context: "Nei, det var faktisk ikke Simen!"
+                    },
+                    {
+                        text: "Vi er alle dine største fans",
+                        answer: "thomas",
+                        context: "Thomas som sier det åpenbare"
+                    },
+                    {
+                        text: "Ja men du vet ikke alt, du er jo midt i puberteten",
+                        answer: "thomas",
+                        context: "Thomas når klippegeniet sier noe smart"
+                    },
+                    {
+                        text: "Jeg snakker ikke om seiling nå. Nå snakker jeg om reising.",
+                        answer: "thomas",
+                        context: "Thomas. I en samtale der han snakket om at han hadde seilt jorda rundt i 6 år."
+                    },
+                    {
+                        text: "Thomas. Lunsj. han snakka om da han seilte jorda rundt i 6 år",
+                        answer: "thomas",
+                        context: "Thomas sin kommentar om sitt eget seilingsaventure"
+                    },
+                    {
+                        text: "Ja, vi må finne ut hvordan vi blir rike på Victoria",
+                        answer: "thomas",
+                        context: "Thomas om å tjene penger på klippegeniet"
+                    },
+                    {
+                        text: "Nei nei, det er viktig st du tar deg betalt Victoria.",
+                        answer: "magnus",
+                        context: "Magnus etter klippegeniet var genial gratis for han i 3 måneder"
+                    },
+                    {
+                        text: "Jeg er så klar for å se klippen at det holder på å gå for meg",
+                        answer: "magnus",
+                        context: "Magnus sin entusiasme for å se et klipp"
+                    },
+                    {
+                        text: "15 menn i Nepal i 3 uker, man trenger ikke mer enn 2 truser da",
+                        answer: "magnus",
+                        context: "Magnus sin praktiske vurdering av undertøy-behov"
+                    },
+                    {
+                        text: "Nei nei nei, ikke tenk tanken på kokain engang",
+                        answer: "magnus",
+                        context: "Magnus til klippegeni da han innbilte seg at det var en plan"
+                    },
+                    {
+                        text: "Jeg er ikke så festløve som folk tror",
+                        answer: "magnus",
+                        context: "Magnus' protest mot... noe?"
+                    },
+                    
+                    // Simen sitater
+                    {
+                        text: "Når det er tøffe tider, er det bra med en hamrende stor pikk",
+                        answer: "simen",
+                        context: "Simen sin filosofi om tøffe tider"
+                    },
+                    {
+                        text: "Du kan ikke stå med puppan i fryseren under en debatt liksom",
+                        answer: "simen",
+                        context: "Simens tanker og råd om norsk debatt-kultur"
+                    },
+                    {
+                        text: "Da burde vi vel strengt tatt skjære glory hole i døra",
+                        answer: "simen",
+                        context: "Simen sin løsningsorienterte tilnærming"
+                    },
+                    {
+                        text: "Den satt som pikk i kram snø",
+                        answer: "simen",
+                        context: "Simen sin beskrivelse av hvor godt noe passet"
+                    }
+                ];
+                
+                this.currentQuestionIndex = 0;
+                this.correctAnswers = 0;
+                this.wrongAnswers = 0;
+                this.totalQuestions = 15;
+                this.gameStarted = false;
+                
+                this.elements = {
+                    currentQuestion: document.getElementById('currentQuestion'),
+                    correctAnswers: document.getElementById('correctAnswers'),
+                    wrongAnswers: document.getElementById('wrongAnswers'),
+                    questionNumber: document.getElementById('questionNumber'),
+                    quoteText: document.getElementById('quoteText'),
+                    loadingIndicator: document.getElementById('loadingIndicator'),
+                    answerOptions: document.getElementById('answerOptions'),
+                    resultScreen: document.getElementById('resultScreen'),
+                    resultTitle: document.getElementById('resultTitle'),
+                    resultScore: document.getElementById('resultScore'),
+                    resultMessage: document.getElementById('resultMessage')
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.shuffleQuotes();
+                this.setupEventListeners();
+                this.startQuiz();
+            }
+            
+            shuffleQuotes() {
+                // Shuffle quotes and take first 15
+                for (let i = this.quotes.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.quotes[i], this.quotes[j]] = [this.quotes[j], this.quotes[i]];
+                }
+                this.quotes = this.quotes.slice(0, this.totalQuestions);
+            }
+            
+            setupEventListeners() {
+                const answerButtons = document.querySelectorAll('.answer-btn');
+                answerButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        if (!this.gameStarted) return;
+                        this.selectAnswer(e.target.closest('.answer-btn').dataset.answer);
+                    });
+                });
+            }
+            
+            startQuiz() {
+                this.gameStarted = true;
+                this.showQuestion();
+            }
+            
+            showQuestion() {
+                const question = this.quotes[this.currentQuestionIndex];
+                
+                // Show loading
+                this.elements.loadingIndicator.style.display = 'flex';
+                this.elements.answerOptions.style.display = 'none';
+                
+                // Update UI
+                this.elements.currentQuestion.textContent = this.currentQuestionIndex + 1;
+                this.elements.questionNumber.textContent = `${this.currentQuestionIndex + 1}/${this.totalQuestions}`;
+                this.elements.correctAnswers.textContent = this.correctAnswers;
+                this.elements.wrongAnswers.textContent = this.wrongAnswers;
+                
+                // Simulate loading time for better UX
+                setTimeout(() => {
+                    this.elements.quoteText.textContent = question.text;
+                    this.elements.loadingIndicator.style.display = 'none';
+                    this.elements.answerOptions.style.display = 'grid';
+                    
+                    // Reset button states
+                    document.querySelectorAll('.answer-btn').forEach(btn => {
+                        btn.classList.remove('correct', 'incorrect');
+                        btn.disabled = false;
+                    });
+                }, 800);
+            }
+            
+            selectAnswer(selectedAnswer) {
+                const question = this.quotes[this.currentQuestionIndex];
+                const correctAnswer = question.answer;
+                const isCorrect = selectedAnswer === correctAnswer;
+                
+                // Play sound effect
+                if (isCorrect) {
+                    this.correctSound.play().catch(e => console.log('Could not play correct sound:', e));
+                } else {
+                    this.incorrectSound.play().catch(e => console.log('Could not play incorrect sound:', e));
+                }
+                
+                // Disable all buttons
+                document.querySelectorAll('.answer-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+                
+                // Show correct/incorrect with enhanced animations
+                document.querySelectorAll('.answer-btn').forEach(btn => {
+                    if (btn.dataset.answer === correctAnswer) {
+                        btn.classList.add('correct');
+                    } else if (btn.dataset.answer === selectedAnswer) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+                
+                // Update scores
+                if (isCorrect) {
+                    this.correctAnswers++;
+                } else {
+                    this.wrongAnswers++;
+                }
+                
+                // Update scores with animation
+                this.updateScoreDisplay();
+                
+                // Show enhanced feedback with longer display time
+                setTimeout(() => {
+                    this.elements.quoteText.innerHTML = `
+                        <div style="margin-bottom: 20px; font-weight: 700; font-size: 1.5rem; text-align: center; animation: fadeIn 0.8s ease;">
+                            ${isCorrect ? '✓ RIKTIG!' : '✗ FEIL!'}
+                        </div>
+                        <div style="margin-bottom: 20px; font-size: 1.3rem; font-style: italic; text-align: center; animation: slideIn 0.8s ease 0.2s both;">"${question.text}"</div>
+                        <div style="font-size: 1rem; color: var(--text-muted); font-style: normal; text-align: center; line-height: 1.6; animation: slideIn 0.8s ease 0.4s both;">
+                            ${question.context}
+                        </div>
+                        <div style="margin-top: 20px; text-align: center; animation: slideIn 0.8s ease 0.6s both;">
+                            <span style="background: var(--glass-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border); font-size: 0.9rem;">
+                                ${isCorrect ? 'Bra jobba! 🎉' : 'Prøv igjen! 💪'}
+                            </span>
+                        </div>
+                    `;
+                }, 1200);
+                
+                // Next question or end game - longer delay for better UX
+                setTimeout(() => {
+                    this.currentQuestionIndex++;
+                    if (this.currentQuestionIndex < this.totalQuestions) {
+                        this.showQuestion();
+                    } else {
+                        this.endGame();
+                    }
+                }, 5000); // Increased from 3000 to 5000ms
+            }
+            
+            updateScoreDisplay() {
+                // Add animation to score elements
+                this.elements.correctAnswers.classList.add('score-updating');
+                this.elements.wrongAnswers.classList.add('score-updating');
+                
+                // Update the values
+                this.elements.correctAnswers.textContent = this.correctAnswers;
+                this.elements.wrongAnswers.textContent = this.wrongAnswers;
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    this.elements.correctAnswers.classList.remove('score-updating');
+                    this.elements.wrongAnswers.classList.remove('score-updating');
+                }, 600);
+            }
+            
+            endGame() {
+                const percentage = Math.round((this.correctAnswers / this.totalQuestions) * 100);
+                
+                // Set result content
+                this.elements.resultScore.textContent = `Du fikk ${this.correctAnswers}/${this.totalQuestions} riktige! (${percentage}%)`;
+                
+                if (percentage >= 90) {
+                    this.elements.resultTitle.textContent = "Legendarisk!";
+                    this.elements.resultMessage.textContent = "Du kjenner Thomas, Magnus og Simen som dine egne! Du vet nøyaktig hvem som sier hva. Imponerende!";
+                } else if (percentage >= 70) {
+                    this.elements.resultTitle.textContent = "Bra jobba!";
+                    this.elements.resultMessage.textContent = "Du har god oversikt over hvem som sier hva. Du kjenner Thomas, Magnus og Simen ganske bra!";
+                } else if (percentage >= 50) {
+                    this.elements.resultTitle.textContent = "Ikke så verst!";
+                    this.elements.resultMessage.textContent = "Du gjettet riktig om halvparten av gangene. Litt mer oppmerksomhet så blir du ekspert!";
+                } else {
+                    this.elements.resultTitle.textContent = "Trenger mer trening!";
+                    this.elements.resultMessage.textContent = "Du bør høre bedre etter når Thomas, Magnus og Simen snakker. Prøv igjen!";
+                }
+                
+                this.elements.resultScreen.style.display = 'flex';
+            }
+        }
+        
+        let quiz;
+        
+        function restartQuiz() {
+            quiz = new HvemSaDetQuiz();
+        }
+        
+        // Start quiz when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            quiz = new HvemSaDetQuiz();
+        });
+    </script>
+</body>
+</html>

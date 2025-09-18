@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rollo Visdom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='assets/img/nk-4.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        .wisdom-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        .wisdom-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .wisdom-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 107, 53, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .wisdom-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 60px;
+            margin: 0 auto 30px;
+            transition: all 0.3s ease;
+            display: none;
+            min-height: 400px;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .wisdom-card.active {
+            display: flex;
+        }
+
+        .wisdom-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .wisdom-text {
+            font-size: 1.6rem;
+            line-height: 1.7;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+        }
+
+
+        .diary-date {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            font-style: italic;
+            font-family: 'Courier New', monospace;
+        }
+
+        .navigation {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .nav-button {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 25px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 107, 53, 0.3);
+            border-color: rgba(255, 107, 53, 0.5);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .card-counter {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 107, 53, 0.3);
+            border-color: rgba(255, 107, 53, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .wisdom-container {
+                padding: 20px 15px;
+            }
+            
+            .wisdom-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .wisdom-card {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+            }
+            
+            .wisdom-text {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body class="dark">
+    <a href="{{ url_for('index') }}" class="back-button">← Tilbake</a>
+    
+    <main class="wisdom-container">
+        <div class="wisdom-header">
+            <h1>To år på Rollo: Visdom</h1>
+        </div>
+
+        <div class="wisdom-card active">
+            <div class="diary-date">15. sept 2023</div>
+            <div class="wisdom-text">Klikk her for visdom</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">23. okt 2023</div>
+            <div class="wisdom-text">At Rollo Tomasi er som et seil, og alle er forskjellige båter som prøver å finne samme kurs</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">8. nov 2023</div>
+            <div class="wisdom-text">At kontoret er en state of mind</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">12. des 2023</div>
+            <div class="wisdom-text">Det som skjer på kinorommet blir kanskje på kinorommet, men det blir garantert nevnt i lunsjen tre uker senere av han som ikke engang var der</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">3. jan 2024</div>
+            <div class="wisdom-text">At Thomas er en fisk og det er greit</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">18. feb 2024</div>
+            <div class="wisdom-text">At Discovery kan dra til helvete</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">7. mar 2024</div>
+            <div class="wisdom-text">Man kan møte fyllesyk på jobbintervju og likevel bli ansatt</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">22. apr 2024</div>
+            <div class="wisdom-text">At Magnus er 60% ideer, 30% krangling og 10% bøttehat</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">5. mai 2024</div>
+            <div class="wisdom-text">Hvert sekund teller når man skal koke egg</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">14. jun 2024</div>
+            <div class="wisdom-text">Politikk er ikke gøy, selv på MDMA</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">29. jul 2024</div>
+            <div class="wisdom-text">At alle tar dop, men mest Kjetil</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">11. aug 2024</div>
+            <div class="wisdom-text">Menn over 50 har enten en båt, drømmer om en båt, eller har blitt svindlet i forbindelse med en båt</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">16. sep 2024</div>
+            <div class="wisdom-text">Jeg er ett klippegeni</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">4. okt 2024</div>
+            <div class="wisdom-text">At man ikke kan stå med puppene i fryseren under en debatt</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">19. nov 2024</div>
+            <div class="wisdom-text">Det beste forsvaret i enhver ubehagelig jobbsamtale er å bare si «æ e bare glad for å være her», for det er et argument ingen kan vinne mot</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">2. des 2024</div>
+            <div class="wisdom-text">At bøttehatten ikke døde i 2012</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">17. jan 2025</div>
+            <div class="wisdom-text">Menn over 50 må kjenne deg i 18 måneder før de tørr kødde med at du er en kvinne</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">6. feb 2025</div>
+            <div class="wisdom-text">At hvis du klipper en pilot gratis og nekter å gå hjem så får du faktisk bo på kontoret</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">21. mar 2025</div>
+            <div class="wisdom-text">Suksess på en sommerfest måles i hvor mange koner som blir forbanna på ektemennene sine dagen derpå fordi de tilbrakte kvelden med å snakke med deg</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">9. apr 2025</div>
+            <div class="wisdom-text">Hva en spinnhakker er</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">25. mai 2025</div>
+            <div class="wisdom-text">Når en mann over 50 hevder at kokain «ikke funker så mye på ham», betyr det at han har tatt veldig, veldig mye kokain</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">13. jun 2025</div>
+            <div class="wisdom-text">Det er mulig å bli for opphengt i konseptet valgomat.. hvem skulle trodd</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">28. jul 2025</div>
+            <div class="wisdom-text">«Jeg vil seile» og «fuck NRK» er også følelser</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">10. aug 2025</div>
+            <div class="wisdom-text">De er alle ulike. En idé om en god forretningsplan kan innebære å foreslå at ett klippegeni flytter inn på kontoret for å spare leieutgifter. Simens forslag var "prostitusjon"</div>
+        </div>
+
+        <div class="wisdom-card">
+            <div class="diary-date">15. sep 2025</div>
+            <div class="wisdom-text">At man aldri skal gi seg uansett hva</div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn" onclick="changeCard(-1)">← Forrige</button>
+            <button class="nav-button" id="nextBtn" onclick="changeCard(1)">Neste →</button>
+            <div class="card-counter">
+                <span id="currentCard">1</span> / <span id="totalCards">25</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentCardIndex = 0;
+        const cards = document.querySelectorAll('.wisdom-card');
+        const totalCards = cards.length;
+        
+        
+        document.getElementById('totalCards').textContent = totalCards;
+
+
+        function showCard(index) {
+            // Hide all cards
+            cards.forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Show current card
+            if (cards[index]) {
+                cards[index].classList.add('active');
+            }
+
+            // Update counter
+            document.getElementById('currentCard').textContent = index + 1;
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalCards - 1;
+        }
+
+        function changeCard(direction) {
+            const newIndex = currentCardIndex + direction;
+            if (newIndex >= 0 && newIndex < totalCards) {
+                currentCardIndex = newIndex;
+                showCard(currentCardIndex);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeCard(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeCard(1);
+            }
+        });
+
+
+        // Initialize
+        showCard(0);
+    </script>
+</body>
+</html>

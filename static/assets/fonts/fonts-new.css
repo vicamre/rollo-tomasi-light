@@ -1,0 +1,64 @@
+/* --- Laster inn nye fonter for prosjektet --- */
+
+@font-face {
+    font-family: 'New Vertigo';
+    src: url('New Vertigo.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Atomic';
+    src: url('Atomic-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'StraightForward';
+    src: url('StraightForward-DEMO.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'DrunkFonts';
+    src: url('DRUNKFONTS-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MetalBlock Tango';
+    src: url('MetalBlockTango.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MagazineLetter';
+    src: url('MagazineLetterByBrntlbrnl-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MPF DotImpact';
+    src: url('MPF DOTIMPACT.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'WhatsHappened';
+    src: url('WhatsHappened.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Overwave';
+    src: url('Overwave.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}

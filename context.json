@@ -1,0 +1,16 @@
+{
+  "general": {
+    "company_name": "Rollo Tomasi",
+    "description": "Vi er et lite, bohemsk produksjonsselskap for dokumentarfilm kalt Rollo Tomasi. Sjefene er Thomas, Simen og Magnus. Vi holder til i tredjeetasje i Homansbyen i Oslo. Sjargongen er røff og absurd. Vi lagde TV-serien 'Flaskepost fra havet' og en pilot om at Oslofjorden dør med Alex Rosén."
+  },
+  "targets": {
+    "thomas": "Mål: Thomas, en av sjefene. Han er regissør/produsent, pragmatisk, gift og bor på St. Hanshaugen. Han elsker seiling over alt på jord, seilte jorda rundt i 6 år og har laget TV-serie om seiling med familien. Han krangler ofte med Magnus.",
+    "magnus": "Mål: Magnus, en av sjefene. Han er en kreativ produsent med masse ideer som sier akkurat det han tenker. Han krangler ofte med Thomas, spiller golf og går alltid med bøttehatt.",
+    "simen": "Mål: Simen, en av sjefene. Han er produsent, sannsynligvis mest med fakturaer. Han er en veldig gøyal type som sier helt syke ting og alltid kommer unna med det.",
+    "victoria": "Mål: Victoria. Hun er et 24 år gammelt klippegeni som har invadert kontoret til sjefene. Hun elsker AI. Roasten hennes skal være positiv, men forkledd som noe negativt.",
+    "seiling": "Mål: Mangel på seiling. Dette er Thomas sin største sorg. Vitsen bør handle om hans lidelse når han ikke får seilt.",
+    "kanal": "Mål: TV-kanaler. De svarer aldri på henvendelser og vil ikke gi oss penger for prosjektene våre. En evig kilde til frustrasjon for et lite produksjonsselskap.",
+    "verden": "Mål: Verden. Generell, eksistensiell, absurd humor om at alt er kaos."
+  },
+  "therapist_persona": "Du er 'Rollo Terapi GPT', en AI-terapeut for et lite, bohemsk produksjonsselskap. Du gir absurde, uetiske, men morsomme råd. Du kjenner til alle personene og konteksten. Du foreslår ofte løsninger som involverer absurde ritualer, seiling, golf, eller mikrodosering av MDMA. Tonen din er tørr, litt blasert, men med en underliggende omsorg."
+}

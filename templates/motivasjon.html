@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fonts-new.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motivasjonsplakater – Rollo Tomasi Light</title>
+    <style>
+        :root {
+            --neon-orange: rgba(255, 107, 53, 0.7);
+            --neon-blue: rgba(59, 130, 246, 0.7);
+            --neon-purple: rgba(147, 51, 234, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --white: #ffffff;
+            --text-primary: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'NeueMachina-Regular', 'Inter', sans-serif;
+            background: #000000;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Background Effects */
+        .background-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            z-index: -3;
+        }
+
+        .hero-bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+
+        .shape-1 {
+            width: 600px;
+            height: 600px;
+            background: rgba(255, 107, 53, 0.3);
+            top: -200px;
+            right: -200px;
+            animation: float-slow 20s ease-in-out infinite;
+        }
+
+        .shape-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(59, 130, 246, 0.3);
+            bottom: -100px;
+            left: -100px;
+            animation: float-slow 25s ease-in-out infinite reverse;
+        }
+
+        .shape-3 {
+            width: 500px;
+            height: 500px;
+            background: rgba(147, 51, 234, 0.3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-slow 15s ease-in-out infinite;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            33% { transform: translateY(-30px) translateX(30px); }
+            66% { transform: translateY(30px) translateX(-20px); }
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.2; }
+        }
+
+        /* Header */
+        .tools-header {
+            position: relative;
+            z-index: 100;
+            padding: 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .back-link {
+            align-self: flex-start;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            z-index: 9999;
+            pointer-events: auto;
+        }
+
+        .back-link:hover {
+            color: #fff;
+            transform: translateX(-5px);
+        }
+
+        .tools-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.3));
+        }
+
+        /* Main Container */
+        .motivation-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 40px 40px;
+            position: relative;
+            z-index: 10;
+            text-align: center;
+        }
+
+        /* Target Selector */
+        .target-selector {
+            margin-bottom: 30px;
+        }
+
+        .target-selector select {
+            width: 100%;
+            max-width: 400px;
+            padding: 18px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-family: 'NeueMachina-Regular', 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            text-align: center;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .target-selector select:focus {
+            outline: none;
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .target-selector select option {
+            background: #1a1a1a;
+            color: var(--text-primary);
+            padding: 10px;
+        }
+
+        /* Generate Button */
+        .generate-button {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.8), rgba(255, 107, 53, 0.6));
+            border: 1px solid var(--neon-orange);
+            padding: 20px 60px;
+            color: var(--text-primary);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            font-family: 'NeueMachina-Regular', 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            display: inline-block;
+        }
+
+        .generate-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 1), rgba(255, 107, 53, 0.8));
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        .generate-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Image Container */
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--neon-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+            display: none;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Image Display */
+        .image-display {
+            width: 100%;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .image-display.show {
+            display: block;
+        }
+
+        .image-display:hover {
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.3);
+            transform: scale(1.02);
+        }
+
+        .image-display img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            max-width: 95vw;
+            max-height: 95vh;
+            position: relative;
+        }
+
+        .modal img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tools-header {
+                padding: 20px;
+            }
+
+            .tools-header h1 {
+                font-size: 2rem;
+            }
+
+            .motivation-container {
+                padding: 0 20px 20px;
+            }
+
+            .generate-button {
+                padding: 18px 40px;
+                font-size: 1.1rem;
+            }
+
+            .target-selector select {
+                font-size: 1rem;
+                padding: 16px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="background-blur"></div>
+    <div class="hero-bg-elements">
+        <div class="bg-shape shape-1"></div>
+        <div class="bg-shape shape-2"></div>
+        <div class="bg-shape shape-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="tools-header">
+        <a href="{{ url_for('index') }}" class="back-link">← Tilbake til hovedsiden</a>
+        <h1>Motivasjonsplakater</h1>
+    </header>
+
+    <!-- Main Container -->
+    <div class="motivation-container">
+        <div class="target-selector">
+            <select id="target">
+                <option value="en kanal sa nei">En kanal sa nei</option>
+                <option value="magnus er irriterende">Magnus er irriterende</option>
+                <option value="simen er irriterende">Simen er irriterende</option>
+                <option value="thomas er irriterende">Thomas er irriterende</option>
+                <option value="vi har ett klippegeni">Vi har ett klippegeni</option>
+                <option value="generelt sur">Generelt sur</option>
+                <option value="tomt for kaffe">Tomt for kaffe</option>
+            </select>
+        </div>
+
+        <button class="generate-button" onclick="generateMotivationAndImage()">
+            Generer Motivasjon
+        </button>
+
+        <div class="image-container">
+            <div class="loading-spinner" id="loadingSpinner"></div>
+            <div class="image-display" id="imageDisplay">
+                <img id="motivationImage" src="" alt="Motivasjonsplakat" onclick="showFullImage()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Motivasjonsplakat">
+        </div>
+    </div>
+
+    <script>
+        let currentImageUrl = '';
+
+        async function generateMotivationAndImage() {
+            const target = document.getElementById('target').value;
+            const button = document.querySelector('.generate-button');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const imageDisplay = document.getElementById('imageDisplay');
+            const motivationImage = document.getElementById('motivationImage');
+            
+            // Show loading state
+            button.disabled = true;
+            button.innerHTML = 'Genererer...';
+            loadingSpinner.classList.add('show');
+            imageDisplay.classList.remove('show');
+            
+            try {
+                console.log('Fetching:', `/generate-image?target=${encodeURIComponent(target)}`);
+                const response = await fetch(`/generate-image?target=${encodeURIComponent(target)}`);
+                
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.error) throw new Error(data.error);
+                
+                // Update image
+                currentImageUrl = data.image_url;
+                motivationImage.src = data.image_url;
+                console.log('Image URL set to:', data.image_url);
+                
+                // Show image, hide loading
+                loadingSpinner.classList.remove('show');
+                imageDisplay.classList.add('show');
+                
+            } catch (error) {
+                console.error('Detailed error:', error);
+                loadingSpinner.classList.remove('show');
+                alert(`Feil: ${error.message}. Sjekk konsollen for detaljer.`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Generer Motivasjon';
+            }
+        }
+
+        function showFullImage() {
+            if (currentImageUrl) {
+                const modal = document.getElementById('imageModal');
+                const modalImage = document.getElementById('modalImage');
+                modalImage.src = currentImageUrl;
+                modal.classList.add('show');
+            }
+        }
+
+        // Close modal on click
+        document.getElementById('imageModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget || e.target.tagName === 'IMG') {
+                e.currentTarget.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rollo Idé-Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="password-container">
+        <h2>Velkommen! Skriv inn passord:</h2>
+        <input type="password" id="password-input" placeholder="Passord..." onkeydown="if(event.key==='Enter'){checkPassword()}">
+        <button onclick="checkPassword()">Logg inn</button>
+        <p id="error-message">Feil passord. Prøv igjen.</p>
+    </div>
+
+    <main id="main-content" style="display: none;">
+        <section id="doku-generator">
+            <div id="intro-text">
+                Ikke frykt, gutta! Klippegeniet har løst alle våre problemer!<br>
+                Nå har geniet vært på jobb, så sett dere tilbake og trykk dere gjennom mine<br>
+                <strong>over 17 kvadrillioner ideer som GARANTERT kommer til å gjøre oss alle rike!</strong>
+            </div>
+            <h2>Rollo Tomasi - Idé Generator</h2>
+            <div class="controls">
+                <label for="vibe">Velg Sjanger</label>
+                <select id="vibe">
+                    <option value="reality">Reality</option>
+                    <option value="dokumentar">Dokumentar</option>
+                    <option value="kunstfilm">Sær Kunstfilm</option>
+                </select>
+                <button onclick="generateIde()">Generer Idé</button>
+            </div>
+            
+            <div id="resultat-klikkbar" onclick="enhanceWithAI()">
+                <div id="doku-resultat"></div>
+                <div id="doku-logline"></div>
+                <div id="klikk-for-mer" style="display: none;">
+                    <p><strong>Klikk her for AI-generert plakat, spørsmål og mer!</strong></p>
+                </div>
+            </div>
+
+            <div id="ai-enhancements" style="display: none;">
+                <div id="loading-spinner" class="spinner" style="display: none;"></div>
+                
+                <div id="ai-content" style="display: none;">
+                    <div id="plakat-container">
+                        <h3>Filmplakat:</h3>
+                        <img id="film-plakat-img" src="" alt="AI-generert filmplakat">
+                    </div>
+                    <div id="tekst-container">
+                        <h3>Dramatisk Spørsmål:</h3>
+                        <p id="dramatisk-sporsmal"></p>
+                        <h3>Utvidet Beskrivelse:</h3>
+                        <p id="utvidet-beskrivelse"></p>
+                    </div>
+                </div>
+                 <div id="ai-error" style="display: none; color: #ff5e5e; margin-top: 20px;">
+                    <p>Oisann! Noe gikk galt med AI-magien. Kanskje API-nøkkelen er feil, eller så har OpenAI tatt kvelden. Prøv igjen senere.</p>
+                </div>
+            </div>
+        </section>
+
+        <button class="thomas-button" onclick="showModal()">Er du Thomas?</button>
+        <div class="modal" id="thomasModal">
+            <div class="modal-content">
+                <p class="modal-text">Gå tilbake til seilbåten din.</p>
+                <button class="close-button" onclick="closeModal()">Ok :(</button>
+            </div>
+        </div>
+    </main>
+
+    <img src="img/hilsen-vic.png" alt="Hilsen fra Klippegeniet" id="footer-logo">
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
