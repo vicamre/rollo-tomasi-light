@@ -504,8 +504,22 @@
             }
             
             .glass-card {
-                width: 380px;
-                height: 130px;
+                width: 320px;
+                height: 110px;
+                padding: 18px 22px;
+            }
+            
+            .glass-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .glass-card p {
+                font-size: 0.75rem;
+            }
+            
+            .card-label {
+                font-size: 0.5rem;
+                letter-spacing: 1px;
             }
             
             .logo-container {
@@ -521,7 +535,33 @@
                 width: calc(100vw - 20px);
                 right: 10px;
             }
-    }
+        }
+
+        @media (max-width: 480px) {
+            .glass-card {
+                width: 280px;
+                height: 100px;
+                padding: 15px 18px;
+            }
+            
+            .glass-card h3 {
+                font-size: 1rem;
+            }
+            
+            .glass-card p {
+                font-size: 0.7rem;
+                line-height: 1.2;
+            }
+            
+            .card-label {
+                font-size: 0.45rem;
+                margin-bottom: 4px;
+            }
+            
+            .cards-container {
+                gap: 12px;
+            }
+        }
   </style>
 </head>
 <body>
@@ -605,8 +645,8 @@
 
         <!-- Bottom Info -->
         <div class="bottom-info">
-            <h1>ROLLO TOMASI LIGHT</h1>
-            <p>Forenklet versjon med fokus på de viktigste funksjonene - kun det du trenger.</p>
+            <h1>ROLLO TOMASI & ET KLIPPEGENI</h1>
+            <p>Kodet og skapet med kjærlig mobbing</p>
     </div>
 
         <!-- Chat Widget -->
