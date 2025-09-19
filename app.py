@@ -157,6 +157,11 @@ def nautilator_page():
 def seil_thomas_hjem():
     return render_template("seil-hjem.html")
 
+@app.route("/seil-thomas-hjem-mobile")
+def seil_thomas_hjem_mobile():
+    """Seil Thomas til Dagslysfesten - Mobiloptimalisert versjon"""
+    return render_template("seil-hjem-mobile.html")
+
 @app.route("/tetris")
 def tetris():
     return render_template("tetris.html")

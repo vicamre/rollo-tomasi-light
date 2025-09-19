@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <title>Seil Thomas til Dagslysfesten! ⛵ (Mobil)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#1e88e5" />
+  <style>
+    :root {
+      --sea-blue: #1e88e5;
+      --sea-dark: #0d47a1;
+      --sky-light: #81d4fa;
+      --sky-bright: #e1f5fe;
+      --sail-white: #ffffff;
+      --boat-brown: #8d6e63;
+      --thomas-orange: #ff7043;
+      --danger-red: #e53935;
+      --powerup-green: #43a047;
+    }
+
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    body {
+      background: linear-gradient(180deg, var(--sky-bright) 0%, var(--sky-light) 40%, var(--sea-blue) 60%, var(--sea-dark) 100%);
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile */
+      position: fixed;
+      width: 100%;
+      touch-action: manipulation;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .game-header {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 100;
+      padding: 0 10px;
+    }
+
+    .game-title {
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      font-weight: bold;
+      font-family: 'Brooklyn-Bold', 'NeueMachina-Ultrabold', 'Impact', Arial Black, sans-serif;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      margin-bottom: 5px;
+      color: #000000;
+      background: linear-gradient(135deg, #ffffff, #f0f0f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+    }
+
+    .game-subtitle {
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+      opacity: 0.9;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    }
+
+    .back-link {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-weight: bold;
+      font-size: clamp(0.8rem, 3vw, 1rem);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      transition: all 0.3s ease;
+      z-index: 200;
+      background: rgba(0,0,0,0.3);
+      padding: 8px 12px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    .back-link:hover {
+      color: white;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .game-canvas {
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 2px solid rgba(255,255,255,0.2);
+      width: calc(100vw - 20px);
+      height: calc(100vh - 140px);
+      height: calc(100dvh - 140px);
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .score-display {
+      position: absolute;
+      top: 60px;
+      right: 15px;
+      background: rgba(0,0,0,0.4);
+      padding: 8px 15px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .score-number {
+      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      color: #fff;
+    }
+
+    .score-label {
+      font-size: clamp(0.6rem, 2vw, 0.8rem);
+      opacity: 0.8;
+      text-align: center;
+    }
+
+    .boost-indicator {
+      position: absolute;
+      top: 60px;
+      left: 15px;
+      background: rgba(67,160,71,0.4);
+      padding: 8px 15px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(67,160,71,0.6);
+      transform: scale(0);
+      transition: transform 0.3s ease;
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+    }
+
+    .boost-indicator.active {
+      transform: scale(1);
+    }
+
+    .controls-hint {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      background: rgba(0,0,0,0.4);
+      padding: 8px 15px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      font-size: clamp(0.6rem, 2vw, 0.8rem);
+      opacity: 0.9;
+      max-width: calc(100vw - 20px);
+    }
+
+    .mobile-touch-area {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40%;
+      background: rgba(255,255,255,0.05);
+      border-top: 2px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      pointer-events: auto;
+    }
+
+    .touch-instruction {
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      opacity: 0.8;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .game-over-screen, .thomas-intro {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.9);
+      padding: clamp(20px, 5vw, 30px);
+      border-radius: 15px;
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255,255,255,0.3);
+      text-align: center;
+      z-index: 1000;
+      max-width: calc(100vw - 40px);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+
+    .thomas-intro {
+      display: block;
+    }
+
+    .game-over-screen {
+      display: none;
+    }
+
+    .thomas-avatar {
+      width: clamp(60px, 15vw, 80px);
+      height: clamp(60px, 15vw, 80px);
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      background: var(--thomas-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      border: 3px solid white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .thomas-quote {
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      font-style: italic;
+      margin-bottom: 15px;
+      color: #81d4fa;
+      line-height: 1.4;
+    }
+
+    .mode-btn {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 2px solid rgba(255,255,255,0.3);
+      padding: 12px 16px;
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      min-width: 100px;
+      margin: 0 5px;
+    }
+
+    .mode-btn:hover, .mode-btn:active {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.5);
+      transform: scale(0.95);
+    }
+
+    .mode-btn.selected {
+      background: linear-gradient(135deg, #1e88e5, #0d47a1);
+      border-color: #1e88e5;
+      box-shadow: 0 4px 15px rgba(30,136,229,0.4);
+    }
+
+    .start-sailing-btn, .restart-btn {
+      background: linear-gradient(135deg, #1e88e5, #0d47a1);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      font-weight: bold;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(30,136,229,0.4);
+      margin-top: 10px;
+    }
+
+    .start-sailing-btn:hover, .start-sailing-btn:active,
+    .restart-btn:hover, .restart-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 6px 20px rgba(30,136,229,0.6);
+    }
+
+    .game-over-title {
+      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      margin-bottom: 15px;
+      color: #e53935;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    }
+
+    .final-score {
+      font-size: clamp(1rem, 3.5vw, 1.3rem);
+      margin-bottom: 15px;
+      color: #fff;
+    }
+
+    /* Wave animation for background */
+    @keyframes wave {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .wave-bg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        rgba(255,255,255,0.1) 10px,
+        transparent 20px
+      );
+      animation: wave 2s ease-in-out infinite;
+      opacity: 0.6;
+      z-index: 1;
+    }
+
+    /* Cloud animations - smaller for mobile */
+    .cloud {
+      position: absolute;
+      background: rgba(255,255,255,0.6);
+      border-radius: 25px;
+      opacity: 0.5;
+      animation: float 15s linear infinite;
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: '';
+      position: absolute;
+      background: rgba(255,255,255,0.6);
+      border-radius: 25px;
+    }
+
+    .cloud1 {
+      width: 40px;
+      height: 20px;
+      top: 15%;
+      left: -50px;
+      animation-duration: 20s;
+    }
+
+    .cloud1::before {
+      width: 25px;
+      height: 25px;
+      top: -12px;
+      left: 5px;
+    }
+
+    .cloud1::after {
+      width: 30px;
+      height: 20px;
+      top: -8px;
+      right: 5px;
+    }
+
+    .cloud2 {
+      width: 30px;
+      height: 15px;
+      top: 25%;
+      left: -50px;
+      animation-duration: 25s;
+      animation-delay: -8s;
+    }
+
+    .cloud2::before {
+      width: 20px;
+      height: 20px;
+      top: -10px;
+      left: 3px;
+    }
+
+    .cloud2::after {
+      width: 25px;
+      height: 15px;
+      top: -5px;
+      right: 3px;
+    }
+
+    @keyframes float {
+      from { transform: translateX(-50px); }
+      to { transform: translateX(calc(100vw + 50px)); }
+    }
+
+    /* Hide desktop-only elements */
+    @media (max-width: 768px) {
+      .desktop-controls {
+        display: none;
+      }
+      
+      .mobile-controls {
+        display: inline;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .desktop-controls {
+        display: inline;
+      }
+      
+      .mobile-controls {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <!-- Background elements -->
+    <div class="wave-bg"></div>
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+
+    <!-- Header -->
+    <div class="game-header">
+      <div class="game-title">⛵ SEIL THOMAS TIL DAGSLYSFESTEN! ⛵</div>
+      <div class="game-subtitle">Mobilversjon - Et maritimt eventyr på vei til festen</div>
+    </div>
+
+    <a class="back-link" href="{{ url_for('index') }}">← Tilbake</a>
+
+    <!-- Canvas -->
+    <canvas class="game-canvas" id="gameCanvas" width="800" height="600"></canvas>
+
+    <!-- HUD Overlay -->
+    <div class="hud">
+      <div class="score-display">
+        <div class="score-number" id="scoreDisplay">0</div>
+        <div class="score-label">Nautiske Mil</div>
+      </div>
+      
+      <div class="boost-indicator" id="boostIndicator">
+        <div style="font-weight: bold;">⚡ TURBO ⚡</div>
+      </div>
+    </div>
+
+    <!-- Mobile Touch Area -->
+    <div class="mobile-touch-area" id="touchArea">
+      <div class="touch-instruction">
+        🖐️ TRYKK HER FOR Å LØFTE SEIL 🖐️
+      </div>
+    </div>
+
+    <div class="controls-hint">
+      <strong>🎮 KONTROLLER:</strong> 
+      <span class="desktop-controls">Piltast opp / W / Space = Løft seil • P = Pause</span>
+      <span class="mobile-controls">Trykk på skjermen = Løft seil</span> 
+      • Unngå skjær og kom trygt til festen!
+    </div>
+
+    <!-- Intro Screen -->
+    <div class="thomas-intro" id="introScreen">
+      <div class="thomas-avatar">
+        <img src="{{ url_for('static', filename='assets/img/thomas-animert-1.png') }}" alt="Thomas" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+      </div>
+      <div class="thomas-quote" id="introQuote">"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"</div>
+      <div style="margin-bottom: 15px; font-size: clamp(0.7rem, 2.5vw, 0.9rem); opacity: 0.8;" id="introDescription">
+        Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>
+        Plukk opp powerups for spesielle evner og bonuspoeng!
+      </div>
+      
+      <!-- Mode Selection -->
+      <div style="margin-bottom: 15px;">
+        <div style="margin-bottom: 10px; font-size: clamp(0.8rem, 2.5vw, 1rem); color: #81d4fa;">Velg seiling-modus:</div>
+        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+          <button class="mode-btn" id="normalModeBtn" onclick="selectMode('normal')">
+            <span style="font-size: 1rem;">⚡</span><br>
+            Normal Seiling<br>
+            <small>Utfordrende</small>
+          </button>
+          <button class="mode-btn" id="rolloModeBtn" onclick="selectMode('rollo')">
+            <span style="font-size: 1rem;">🧘</span><br>
+            Rollo Modus<br>
+            <small>Avslappende</small>
+          </button>
+        </div>
+      </div>
+      
+      <button class="start-sailing-btn" id="startBtn" onclick="startGame()" disabled style="opacity: 0.5;">Velg modus først</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div class="game-over-screen" id="gameOverScreen">
+      <div class="game-over-title">⚓ Seiltur Avsluttet ⚓</div>
+      <div class="final-score" id="finalScore">Du seilte 0 nautiske mil</div>
+      <div style="margin-bottom: 15px; font-size: clamp(0.7rem, 2.5vw, 0.9rem); opacity: 0.8;" id="gameOverMessage">
+        Thomas sier: "Hadde vi bare hatt bedre vind..."
+      </div>
+      <button class="restart-btn" id="restartBtn" onclick="restartGame()">Ny Seiltur</button>
+    </div>
+  </div>
+
+  <script>
+    // Mobile-optimized game state
+    const game = {
+      canvas: null,
+      ctx: null,
+      width: 800,
+      height: 600,
+      player: {
+        x: 80,
+        y: 300,
+        width: 60,  // Smaller for mobile
+        height: 60,
+        vy: 0,
+        rotation: 0,
+        onWater: true
+      },
+      obstacles: [],
+      powerups: [],
+      particles: [],
+      rockImage: null,
+      camera: { x: 0, y: 0 },
+      score: 0,
+      gameSpeed: 2.5,  // Slightly slower for mobile
+      gravity: 0.3,    // Gentler for mobile
+      lift: -6.5,      // Gentler for mobile
+      maxVelocity: 7.5,
+      gameRunning: false,
+      gameStarted: false,
+      spawnTimer: 0,
+      powerupTimer: 0,
+      boostActive: false,
+      boostTimer: 0,
+      slowActive: false,
+      slowTimer: 0,
+      shieldActive: false,
+      autoPilotActive: false,
+      autoPilotTimer: 0,
+      waterLevel: 480, // Adjusted for mobile canvas
+      mode: 'normal',
+      crashMessages: [
+        "Jeg må komme meg trygt til Dagslysfesten!",
+        "Dette er hvorfor jeg seiler - for å nyte naturen på vei til fest!",
+        "Victoria hadde fikset dette med AI...",
+        "Håper de andre venter på meg på festen!",
+        "Det blir godt å komme frem til Dagslysfesten...",
+        "Jeg savner de 6 årene på havet - der var det enklere!",
+        "NRK svarer fortsatt ikke på e-postene mine...",
+        "Flaskepost fra havet var lettere å lage enn dette!"
+      ],
+      rolloCrashMessages: [
+        "Ro ned... det var bare en liten kollisjon.",
+        "Seiling er som livet - ikke alle kan være perfekte.",
+        "Kanskje det er på tide med en kaffe-pause?",
+        "Selv i Rollo modus kan ting gå galt... det er helt normalt.",
+        "Havet har sine egne regler... vi må bare akseptere dem.",
+        "Det viktigste er at vi prøvde - det er det som teller.",
+        "Noen ganger må man bare stoppe opp og tenke litt.",
+        "Ikke alle seilturer ender som planlagt... og det er greit."
+      ],
+      keys: {},
+      highScore: parseInt(localStorage.getItem('sailThomasHighScore') || '0'),
+      thomasAvatar: null,
+      oslofjordBg: null,
+      sounds: {
+        attentinBoost: new Audio("{{ url_for('static', filename='assets/music/pling1.mp3') }}"),
+        mdmaBoost: new Audio("{{ url_for('static', filename='assets/music/pling3.mp3') }}"),
+        windBoost: new Audio("{{ url_for('static', filename='assets/music/wind.mp3') }}"),
+        countdown: new Audio("{{ url_for('static', filename='assets/music/countdown.mp3') }}"),
+        gameOver: new Audio("{{ url_for('static', filename='assets/music/game-over2.mp3') }}"),
+        pipePass: new Audio("{{ url_for('static', filename='assets/music/pling2.mp3') }}")
+      },
+      powerupImages: {
+        attentin: null,
+        hatt: null,
+        mdma: null,
+        beer: null,
+        wind: null,
+        gps: null,
+        coffee: null
+      },
+      sceneryItems: [],
+      isMobile: true
+    };
+
+    // Initialize game
+    function initGame() {
+      game.canvas = document.getElementById('gameCanvas');
+      game.ctx = game.canvas.getContext('2d');
+      
+      // Adjust canvas size for mobile
+      const container = document.querySelector('.game-container');
+      const rect = container.getBoundingClientRect();
+      game.canvas.width = Math.min(800, rect.width - 20);
+      game.canvas.height = Math.min(600, rect.height - 140);
+      game.width = game.canvas.width;
+      game.height = game.canvas.height;
+      game.waterLevel = game.height * 0.8;
+      
+      // Set up smooth rendering
+      game.ctx.imageSmoothingEnabled = true;
+      
+      // Preload Thomas avatar
+      game.thomasAvatar = new Image();
+      game.thomasAvatar.src = "{{ url_for('static', filename='assets/img/avatar/thomas_2.png') }}";
+      
+      // Preload powerup images
+      game.powerupImages.attentin = new Image();
+      game.powerupImages.attentin.src = "{{ url_for('static', filename='assets/img/ikon/attentin.png') }}";
+      
+      game.powerupImages.hatt = new Image();
+      game.powerupImages.hatt.src = "{{ url_for('static', filename='assets/img/ikon/hatt.png') }}";
+      
+      game.powerupImages.mdma = new Image();
+      game.powerupImages.mdma.src = "{{ url_for('static', filename='assets/img/ikon/mdma.png') }}";
+      
+      game.powerupImages.beer = new Image();
+      game.powerupImages.beer.src = "{{ url_for('static', filename='assets/img/ikon/beer.png') }}";
+      
+      game.powerupImages.wind = new Image();
+      game.powerupImages.wind.src = "{{ url_for('static', filename='assets/img/ikon/wind.png') }}";
+      
+      game.powerupImages.gps = new Image();
+      game.powerupImages.gps.src = "{{ url_for('static', filename='assets/img/ikon/gps.png') }}";
+      
+      game.powerupImages.coffee = new Image();
+      game.powerupImages.coffee.src = "{{ url_for('static', filename='assets/img/ikon/coffee.png') }}";
+      
+      // Set up sound volumes
+      game.sounds.pipePass.volume = 0.1; // Lower volume for mobile
+      
+      resetGame();
+      setupMobileControls();
+    }
+
+    function setupMobileControls() {
+      const touchArea = document.getElementById('touchArea');
+      const canvas = document.getElementById('gameCanvas');
+      
+      // Touch controls for the touch area
+      touchArea.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (game.gameRunning) {
+          game.keys[' '] = true;
+          touchArea.style.background = 'rgba(255,255,255,0.15)';
+        }
+      }, { passive: false });
+
+      touchArea.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        game.keys[' '] = false;
+        touchArea.style.background = 'rgba(255,255,255,0.05)';
+      }, { passive: false });
+
+      // Also allow touches on canvas
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (game.gameRunning) {
+          game.keys[' '] = true;
+        }
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        game.keys[' '] = false;
+      }, { passive: false });
+
+      // Prevent scrolling and zooming
+      document.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+      }, { passive: false });
+
+      document.addEventListener('gesturestart', (e) => {
+        e.preventDefault();
+      }, { passive: false });
+    }
+
+    function selectMode(mode) {
+      game.mode = mode;
+      
+      // Update UI
+      document.getElementById('normalModeBtn').classList.remove('selected');
+      document.getElementById('rolloModeBtn').classList.remove('selected');
+      
+      if (mode === 'normal') {
+        document.getElementById('normalModeBtn').classList.add('selected');
+        document.getElementById('introQuote').textContent = '"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"';
+        document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>Plukk opp powerups for spesielle evner og bonuspoeng!';
+      } else if (mode === 'rollo') {
+        document.getElementById('rolloModeBtn').classList.add('selected');
+        document.getElementById('introQuote').textContent = '"Ro ned, Thomas... la oss bare nyte turen til festen. Ingen stress, bare havet og gleden."';
+        document.getElementById('introDescription').innerHTML = 'En rolig og avslappende seiltur til Dagslysfesten.<br>Færre hindringer, roligere fart, mer tid til å glede seg til festen.';
+      }
+      
+      // Enable start button
+      const startBtn = document.getElementById('startBtn');
+      startBtn.disabled = false;
+      startBtn.style.opacity = '1';
+      startBtn.textContent = mode === 'rollo' ? 'Start Rolig Seiling' : 'Start Seilingen!';
+    }
+
+    function resetGame() {
+      game.player.x = 80;
+      game.player.y = game.height * 0.4;
+      game.player.vy = 0;
+      game.player.rotation = 0;
+      game.obstacles = [];
+      game.powerups = [];
+      game.particles = [];
+      game.score = 0;
+      
+      // Adjust game settings based on mode - more mobile-friendly
+      if (game.mode === 'rollo') {
+        game.gameSpeed = 1.8;  // Even slower for mobile Rollo
+        game.gravity = 0.2;    // Very gentle
+        game.lift = -5.5;      // Very gentle
+        game.maxVelocity = 5.5;
+      } else {
+        game.gameSpeed = 2.5;  // Slower than desktop
+        game.gravity = 0.3;    // Gentler than desktop
+        game.lift = -6.5;      // Gentler than desktop
+        game.maxVelocity = 7.5;
+      }
+      
+      game.spawnTimer = 0;
+      game.powerupTimer = 0;
+      game.boostActive = false;
+      game.boostTimer = 0;
+      game.slowActive = false;
+      game.slowTimer = 0;
+      game.shieldActive = false;
+      game.autoPilotActive = false;
+      game.autoPilotTimer = 0;
+      game.sceneryItems = [];
+      updateScoreDisplay();
+    }
+
+    function startGame() {
+      document.getElementById('introScreen').style.display = 'none';
+      
+      // Show countdown
+      showCountdown(() => {
+        game.gameRunning = true;
+        game.gameStarted = true;
+        gameLoop();
+      });
+    }
+    
+    function showCountdown(callback) {
+      // Play countdown sound (lower volume for mobile)
+      game.sounds.countdown.volume = 0.3;
+      game.sounds.countdown.play().catch(e => console.log('Sound play failed:', e));
+      
+      let count = 3;
+      const countdownEl = document.createElement('div');
+      countdownEl.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: clamp(4rem, 15vw, 6rem);
+        font-weight: bold;
+        color: white;
+        text-shadow: 3px 3px 0px #0d47a1, 0 0 30px rgba(255,255,255,0.8);
+        z-index: 10000;
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      `;
+      document.body.appendChild(countdownEl);
+      
+      function updateCountdown() {
+        if (count > 0) {
+          countdownEl.textContent = count;
+          count--;
+          setTimeout(updateCountdown, 1000);
+        } else {
+          countdownEl.textContent = 'SEIL!';
+          setTimeout(() => {
+            document.body.removeChild(countdownEl);
+            callback();
+          }, 500);
+        }
+      }
+      
+      updateCountdown();
+    }
+
+    function restartGame() {
+      document.getElementById('gameOverScreen').style.display = 'none';
+      document.getElementById('introScreen').style.display = 'block';
+      
+      // Reset to mode selection
+      document.getElementById('normalModeBtn').classList.remove('selected');
+      document.getElementById('rolloModeBtn').classList.remove('selected');
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('startBtn').style.opacity = '0.5';
+      document.getElementById('startBtn').textContent = 'Velg modus først';
+      
+      // Reset intro text
+      document.getElementById('introQuote').textContent = '"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"';
+      document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>Plukk opp powerups for spesielle evner og bonuspoeng!';
+      
+      game.mode = 'normal';
+      resetGame();
+    }
+
+    function gameLoop() {
+      if (!game.gameRunning) return;
+      
+      update();
+      render();
+      
+      requestAnimationFrame(gameLoop);
+    }
+
+    function update() {
+      // Handle input (touch or keyboard)
+      if (!game.autoPilotActive && (game.keys['ArrowUp'] || game.keys['w'] || game.keys[' '])) {
+        game.player.vy += game.lift;
+        addWakeParticles();
+      }
+      
+      // Auto-pilot logic
+      if (game.autoPilotActive) {
+        const targetY = game.height * 0.4;
+        if (game.player.y > targetY) {
+          game.player.vy += game.lift * 0.5;
+          addWakeParticles();
+        }
+      }
+      
+      // Physics
+      game.player.vy += game.gravity;
+      game.player.vy = Math.max(-game.maxVelocity, Math.min(game.maxVelocity, game.player.vy));
+      game.player.y += game.player.vy;
+      
+      // Boat rotation based on velocity
+      game.player.rotation = game.player.vy * 0.08; // Less rotation for mobile
+      
+      // Boundaries
+      if (game.player.y < 0 || game.player.y + game.player.height > game.height) {
+        const boundaryMessage = game.mode === 'rollo' ? 
+          "Kanskje vi skulle ha holdt oss nærmere midten..." : 
+          "Thomas seilte utenfor kursen til Dagslysfesten!";
+        gameOver(boundaryMessage);
+        return;
+      }
+      
+      // Water collision
+      if (game.player.y + game.player.height > game.waterLevel) {
+        game.player.onWater = true;
+      } else {
+        game.player.onWater = false;
+      }
+      
+      // Spawn obstacles - mobile optimized
+      game.spawnTimer++;
+      const currentSpeed = game.boostActive ? game.gameSpeed * 1.6 : game.gameSpeed;
+      
+      let spawnRate;
+      if (game.mode === 'rollo') {
+        spawnRate = 200 - Math.min(game.score * 0.2, 25); // Even slower for mobile Rollo
+      } else {
+        spawnRate = 140 - Math.min(game.score * 0.4, 35); // Slower for mobile
+      }
+      
+      if (game.spawnTimer > spawnRate) {
+        spawnObstacle();
+        game.spawnTimer = 0;
+      }
+      
+      // Spawn powerups less frequently on mobile
+      game.powerupTimer++;
+      if (game.powerupTimer > 400 + Math.random() * 250) {
+        spawnPowerup();
+        game.powerupTimer = 0;
+      }
+      
+      // Update obstacles
+      for (let i = game.obstacles.length - 1; i >= 0; i--) {
+        const obs = game.obstacles[i];
+        obs.x -= currentSpeed;
+        
+        if (obs.type === 'nrk') {
+          obs.y += obs.drift;
+          if (obs.y < 0 || obs.y + obs.height > game.height) {
+            obs.drift *= -1;
+          }
+        }
+        
+        if (obs.x + obs.width < 0) {
+          game.obstacles.splice(i, 1);
+          continue;
+        }
+        
+        if (checkCollision(game.player, obs)) {
+          if (game.shieldActive) {
+            game.shieldActive = false;
+            showPowerupMessage("Seilskjold tok skaden! 💥");
+            game.obstacles.splice(i, 1);
+            continue;
+          } else {
+            const messages = game.mode === 'rollo' ? game.rolloCrashMessages : game.crashMessages;
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            gameOver(randomMessage);
+            return;
+          }
+        }
+        
+        if (!obs.passed && obs.x + obs.width < game.player.x && obs.y === 0) {
+          obs.passed = true;
+          game.score++;
+          if (game.boostActive) game.score++;
+          
+          game.sounds.pipePass.currentTime = 0;
+          game.sounds.pipePass.play().catch(e => console.log('Sound play failed:', e));
+          
+          checkAchievements();
+          updateScoreDisplay();
+        }
+      }
+      
+      // Update powerups
+      for (let i = game.powerups.length - 1; i >= 0; i--) {
+        const powerup = game.powerups[i];
+        powerup.x -= currentSpeed;
+        powerup.bob += 0.08;
+        
+        if (powerup.x + powerup.width < 0) {
+          game.powerups.splice(i, 1);
+          continue;
+        }
+        
+        if (checkCollision(game.player, powerup)) {
+          collectPowerup(powerup);
+          game.powerups.splice(i, 1);
+          continue;
+        }
+      }
+      
+      // Update boost/slow timers
+      if (game.boostActive) {
+        game.boostTimer--;
+        if (game.boostTimer <= 0) {
+          game.boostActive = false;
+          document.getElementById('boostIndicator').classList.remove('active');
+        }
+      }
+      
+      if (game.autoPilotActive) {
+        game.autoPilotTimer--;
+        if (game.autoPilotTimer <= 0) {
+          game.autoPilotActive = false;
+        }
+      }
+      
+      // Update particles
+      for (let i = game.particles.length - 1; i >= 0; i--) {
+        const p = game.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        p.alpha = p.life / p.maxLife;
+        
+        if (p.life <= 0) {
+          game.particles.splice(i, 1);
+        }
+      }
+      
+      // Increase difficulty more gradually
+      if (game.score > 0 && game.score % 12 === 0) {
+        const maxSpeed = game.mode === 'rollo' ? 3.5 : 4.5;
+        game.gameSpeed = Math.min(maxSpeed, (game.mode === 'rollo' ? 1.8 : 2.5) + game.score * 0.02);
+      }
+    }
+
+    function render() {
+      const ctx = game.ctx;
+      
+      // Clear canvas with ocean gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, game.height);
+      gradient.addColorStop(0, '#87ceeb');
+      gradient.addColorStop(0.4, '#87ceeb');
+      gradient.addColorStop(0.7, '#1e88e5');
+      gradient.addColorStop(1, '#0d47a1');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, game.width, game.height);
+      
+      // Draw water surface
+      drawWaterSurface();
+      
+      // Draw particles
+      game.particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+        ctx.restore();
+      });
+      
+      // Draw obstacles
+      game.obstacles.forEach(obs => {
+        drawObstacle(obs);
+      });
+      
+      // Draw powerups
+      game.powerups.forEach(powerup => {
+        drawPowerup(powerup);
+      });
+      
+      // Draw Thomas's sailboat
+      drawSailboat();
+      
+      // Draw water effects if on water
+      if (game.player.onWater) {
+        drawWaterEffects();
+      }
+    }
+
+    function drawWaterSurface() {
+      const ctx = game.ctx;
+      const time = Date.now() * 0.002;
+      
+      ctx.save();
+      ctx.fillStyle = 'rgba(13, 71, 161, 0.8)';
+      ctx.fillRect(0, game.waterLevel, game.width, game.height - game.waterLevel);
+      ctx.restore();
+      
+      ctx.save();
+      ctx.globalAlpha = 0.6;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      
+      ctx.beginPath();
+      for (let x = 0; x < game.width; x += 8) {
+        const y = game.waterLevel + Math.sin((x + time * 40) * 0.02) * 6 + 
+                  Math.cos((x + time * 25) * 0.015) * 4;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawSailboat() {
+      const ctx = game.ctx;
+      const x = game.player.x;
+      const y = game.player.y;
+      
+      ctx.save();
+      
+      if (game.thomasAvatar && game.thomasAvatar.complete) {
+        ctx.translate(x + game.player.width/2, y + game.player.height/2);
+        ctx.rotate(game.player.vy * 0.03); // Less rotation for mobile
+        
+        ctx.drawImage(game.thomasAvatar, -game.player.width/2, -game.player.height/2, game.player.width, game.player.height);
+      } else {
+        ctx.fillStyle = '#ff7043';
+        ctx.beginPath();
+        ctx.arc(x + game.player.width/2, y + game.player.height/2, game.player.width/2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      // Add effects for active power-ups
+      if (game.boostActive) {
+        ctx.save();
+        ctx.shadowColor = '#ffeb3b';
+        ctx.shadowBlur = 15;
+        ctx.strokeStyle = '#ffeb3b';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      }
+      
+      if (game.shieldActive) {
+        ctx.save();
+        ctx.shadowColor = '#8b4513';
+        ctx.shadowBlur = 12;
+        ctx.strokeStyle = '#8b4513';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      }
+      
+      if (game.autoPilotActive) {
+        ctx.save();
+        ctx.shadowColor = '#00ff88';
+        ctx.shadowBlur = 20;
+        ctx.strokeStyle = '#00ff88';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      }
+      
+      ctx.restore();
+    }
+
+    function drawObstacle(obs) {
+      const ctx = game.ctx;
+      
+      // Mobile-optimized obstacle rendering
+      if (obs.type === 'krangling') {
+        ctx.fillStyle = '#d32f2f';
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        ctx.fillStyle = '#ff5722';
+        ctx.fillRect(obs.x + 1, obs.y + 1, obs.width - 2, obs.height - 2);
+      } else if (obs.type === 'nrk') {
+        ctx.fillStyle = '#757575';
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        ctx.fillStyle = '#424242';
+        ctx.fillRect(obs.x + 1, obs.y + 1, obs.width - 2, obs.height - 2);
+      } else if (obs.type === 'seagull') {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fillRect(obs.x + 1, obs.y + 1, obs.width - 2, obs.height - 2);
+      } else {
+        ctx.fillStyle = '#546e7a';
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        ctx.fillStyle = '#78909c';
+        ctx.fillRect(obs.x + 1, obs.y + 1, obs.width - 2, obs.height - 2);
+      }
+      
+      // Warning glow if close
+      const distance = obs.x - (game.player.x + game.player.width);
+      if (distance < 80 && distance > 0) {
+        ctx.save();
+        ctx.shadowColor = '#e53935';
+        ctx.shadowBlur = 8 + (80 - distance) / 10;
+        ctx.fillStyle = '#e53935';
+        ctx.globalAlpha = 0.2;
+        ctx.fillRect(obs.x - 1, obs.y - 1, obs.width + 2, obs.height + 2);
+        ctx.restore();
+      }
+    }
+
+    function drawPowerup(powerup) {
+      const ctx = game.ctx;
+      const bobY = powerup.y + Math.sin(powerup.bob) * 2;
+      
+      ctx.save();
+      
+      // Glow effect
+      if (powerup.type === 'attentin') ctx.shadowColor = '#00bcd4';
+      else if (powerup.type === 'hatt') ctx.shadowColor = '#8b4513';
+      else if (powerup.type === 'mdma') ctx.shadowColor = '#e91e63';
+      else if (powerup.type === 'beer') ctx.shadowColor = '#ffc107';
+      else if (powerup.type === 'wind') ctx.shadowColor = '#03a9f4';
+      else if (powerup.type === 'gps') ctx.shadowColor = '#4caf50';
+      else if (powerup.type === 'coffee') ctx.shadowColor = '#8d6e63';
+      
+      ctx.shadowBlur = 10;
+      
+      const img = game.powerupImages[powerup.type];
+      
+      if (img && img.complete) {
+        const size = Math.max(powerup.width, powerup.height) + 6;
+        ctx.drawImage(img, 
+          powerup.x - 3, 
+          bobY - 3, 
+          size, 
+          size
+        );
+      } else {
+        // Fallback
+        ctx.fillStyle = '#ff9800';
+        ctx.fillRect(powerup.x, bobY, powerup.width, powerup.height);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('P', powerup.x + powerup.width/2, bobY + powerup.height/2 + 2);
+      }
+      
+      ctx.restore();
+    }
+
+    function drawWaterEffects() {
+      if (Math.random() < 0.2) {
+        addSplashParticle();
+      }
+    }
+
+    function addWakeParticles() {
+      for (let i = 0; i < 2; i++) {
+        game.particles.push({
+          x: game.player.x - 3 + Math.random() * 6,
+          y: game.player.y + game.player.height - 3 + Math.random() * 6,
+          vx: -1.5 - Math.random() * 1.5,
+          vy: -0.5 + Math.random() * 1,
+          size: 1 + Math.random() * 2,
+          color: '#ffffff',
+          life: 15 + Math.random() * 8,
+          maxLife: 23,
+          alpha: 1
+        });
+      }
+    }
+
+    function addSplashParticle() {
+      game.particles.push({
+        x: game.player.x + game.player.width,
+        y: game.player.y + game.player.height,
+        vx: -0.8 - Math.random() * 0.8,
+        vy: -2 - Math.random() * 1.5,
+        size: 1 + Math.random() * 1.5,
+        color: '#87ceeb',
+        life: 12 + Math.random() * 8,
+        maxLife: 20,
+        alpha: 1
+      });
+    }
+
+    function spawnObstacle() {
+      const minHeight = 40;
+      const maxHeight = game.waterLevel - 80;
+      const height = minHeight + Math.random() * (maxHeight - minHeight);
+      
+      // Larger gaps for mobile
+      let gap;
+      if (game.mode === 'rollo') {
+        gap = 200 + Math.random() * 60; // Very large gaps
+      } else {
+        gap = 160 + Math.random() * 50; // Large gaps
+      }
+      
+      // Simpler obstacle types for mobile
+      const rand = Math.random();
+      let obstacleType = 'normal';
+      
+      if (game.mode === 'rollo') {
+        if (rand < 0.3) obstacleType = 'seagull';
+        else obstacleType = 'normal';
+      } else {
+        if (rand < 0.15) obstacleType = 'krangling';
+        else if (rand < 0.3) obstacleType = 'nrk';
+        else if (rand < 0.5) obstacleType = 'seagull';
+        else obstacleType = 'normal';
+      }
+      
+      // Top obstacle
+      game.obstacles.push({
+        x: game.width,
+        y: 0,
+        width: 40 + Math.random() * 20, // Smaller for mobile
+        height: height,
+        passed: false,
+        type: obstacleType,
+        drift: obstacleType === 'nrk' ? (Math.random() - 0.5) * 1.5 : 0
+      });
+      
+      // Bottom obstacle
+      const bottomY = height + gap;
+      const bottomHeight = Math.min(game.height - bottomY, game.waterLevel - bottomY);
+      
+      if (bottomHeight > 15) {
+        game.obstacles.push({
+          x: game.width,
+          y: bottomY,
+          width: 40 + Math.random() * 20,
+          height: bottomHeight,
+          passed: false,
+          type: obstacleType,
+          drift: obstacleType === 'nrk' ? (Math.random() - 0.5) * 1.5 : 0
+        });
+      }
+    }
+
+    function spawnPowerup() {
+      const rand = Math.random();
+      let type;
+      if (rand < 0.2) type = 'attentin';
+      else if (rand < 0.35) type = 'hatt';
+      else if (rand < 0.5) type = 'mdma';
+      else if (rand < 0.65) type = 'beer';
+      else if (rand < 0.8) type = 'wind';
+      else if (rand < 0.9) type = 'gps';
+      else type = 'coffee';
+      
+      game.powerups.push({
+        x: game.width,
+        y: 100 + Math.random() * (game.height - 250),
+        width: 16,  // Smaller for mobile
+        height: 16,
+        type: type,
+        bob: 0
+      });
+    }
+
+    function collectPowerup(powerup) {
+      if (powerup.type === 'attentin') {
+        game.sounds.attentinBoost.volume = 0.2;
+        game.sounds.attentinBoost.currentTime = 0;
+        game.sounds.attentinBoost.play().catch(e => console.log('Sound play failed:', e));
+        game.score += 3;
+        const originalLift = game.lift;
+        game.lift = game.mode === 'rollo' ? -6.5 : -8.0;
+        setTimeout(() => { game.lift = originalLift; }, 5000);
+        
+        const message = game.mode === 'rollo' ? 
+          "Attentin... kanskje litt ekstra fokus kan hjelpe. 💊" : 
+          "Attentin! Bedre fokus og kontroll! 💊";
+        showPowerupMessage(message);
+      } else if (powerup.type === 'hatt') {
+        game.shieldActive = true;
+        const message = game.mode === 'rollo' ? 
+          "Magnus' bøttehatt... kreativitet beskytter oss. 🎩" : 
+          "Magnus' bøttehatt! Kreativ beskyttelse aktivert! 🎩";
+        showPowerupMessage(message);
+      } else if (powerup.type === 'mdma') {
+        game.sounds.mdmaBoost.volume = 0.2;
+        game.sounds.mdmaBoost.currentTime = 0;
+        game.sounds.mdmaBoost.play().catch(e => console.log('Sound play failed:', e));
+        game.boostActive = true;
+        game.boostTimer = 180; // Shorter for mobile
+        game.score += 2;
+        
+        const message = game.mode === 'rollo' ? 
+          "MDMA... alt føles litt lettere nå. 💖" : 
+          "MDMA! Alt er fantastisk! Turbo aktivert! 💖";
+        showPowerupMessage(message);
+        document.getElementById('boostIndicator').classList.add('active');
+      } else if (powerup.type === 'beer') {
+        game.gravity *= 0.85;
+        game.score += 4;
+        setTimeout(() => { 
+          game.gravity = game.mode === 'rollo' ? 0.2 : 0.3; 
+        }, 5000);
+        
+        const message = game.mode === 'rollo' ? 
+          "Øl... noen ganger trenger man bare å slappe av. 🍺" : 
+          "Øl! Rolig seiling og ekstra poeng! 🍺";
+        showPowerupMessage(message);
+      } else if (powerup.type === 'wind') {
+        game.sounds.windBoost.volume = 0.2;
+        game.sounds.windBoost.currentTime = 0;
+        game.sounds.windBoost.play().catch(e => console.log('Sound play failed:', e));
+        const originalLift = game.lift;
+        game.lift = game.mode === 'rollo' ? -7.0 : -8.5;
+        game.score += 3;
+        setTimeout(() => { game.lift = originalLift; }, 4000);
+        
+        const message = game.mode === 'rollo' ? 
+          "Vind i seilene... naturen hjelper oss videre. 💨" : 
+          "Vind i seilene! Perfekt seiling! 💨";
+        showPowerupMessage(message);
+      } else if (powerup.type === 'gps') {
+        game.autoPilotActive = true;
+        game.autoPilotTimer = 240; // Shorter for mobile
+        game.score += 2;
+        
+        const message = game.mode === 'rollo' ? 
+          "GPS... noen ganger er det greit å la teknologien hjelpe. 🧭" : 
+          "GPS aktivert! Autopilot navigerer! 🧭";
+        showPowerupMessage(message);
+      } else if (powerup.type === 'coffee') {
+        const speedMultiplier = game.mode === 'rollo' ? 1.1 : 1.2;
+        game.gameSpeed *= speedMultiplier;
+        game.score += 3;
+        setTimeout(() => { 
+          game.gameSpeed = game.mode === 'rollo' ? 1.8 : 2.5; 
+        }, 4000);
+        
+        const message = game.mode === 'rollo' ? 
+          "Kaffe... litt ekstra energi skader ikke. ☕" : 
+          "Kaffe! Ekstra energi og hastighet! ☕";
+        showPowerupMessage(message);
+      }
+      
+      game.score += 2;
+      updateScoreDisplay();
+    }
+
+    function checkCollision(a, b) {
+      return a.x < b.x + b.width &&
+             a.x + a.width > b.x &&
+             a.y < b.y + b.height &&
+             a.y + a.height > b.y;
+    }
+
+    function gameOver(reason) {
+      game.gameRunning = false;
+      
+      game.sounds.gameOver.volume = 0.3;
+      game.sounds.gameOver.play().catch(e => console.log('Sound play failed:', e));
+      
+      if (game.score > game.highScore) {
+        game.highScore = game.score;
+        localStorage.setItem('sailThomasHighScore', game.highScore.toString());
+      }
+      
+      const scoreText = game.mode === 'rollo' ? 
+        `Du seilte ${game.score} rolige nautiske mil` : 
+        `Du seilte ${game.score} nautiske mil`;
+      
+      document.getElementById('finalScore').textContent = scoreText;
+      document.getElementById('gameOverMessage').innerHTML = `
+        <div style="margin-bottom: 10px;">${reason}</div>
+        <div style="font-size: 0.7rem;">Rekord: ${game.highScore} nautiske mil</div>
+        <div style="font-size: 0.7rem; margin-top: 5px; opacity: 0.7;">
+          ${game.mode === 'rollo' ? 'Rollo modus: Fokus på reisen, ikke målet' : 'Normal modus'} • Mobilversjon
+        </div>
+      `;
+      document.getElementById('gameOverScreen').style.display = 'block';
+    }
+
+    function updateScoreDisplay() {
+      document.getElementById('scoreDisplay').textContent = game.score;
+    }
+    
+    function showPowerupMessage(message) {
+      let msgElement = document.getElementById('powerupMessage');
+      if (!msgElement) {
+        msgElement = document.createElement('div');
+        msgElement.id = 'powerupMessage';
+        msgElement.style.cssText = `
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(0,0,0,0.9);
+          color: #00ff88;
+          padding: 10px 15px;
+          border-radius: 8px;
+          font-family: 'Courier New', monospace;
+          font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+          text-align: center;
+          z-index: 1000;
+          border: 2px solid #00ff88;
+          box-shadow: 0 0 15px rgba(0,255,136,0.5);
+          opacity: 0;
+          transition: opacity 0.3s;
+          max-width: calc(100vw - 40px);
+          line-height: 1.3;
+        `;
+        document.body.appendChild(msgElement);
+      }
+      
+      msgElement.textContent = message;
+      msgElement.style.opacity = '1';
+      
+      setTimeout(() => {
+        msgElement.style.opacity = '0';
+      }, 2000);
+    }
+    
+    function checkAchievements() {
+      if (game.mode === 'rollo') {
+        if (game.score === 5) {
+          showPowerupMessage("🧘 5 rolige mil... noen ganger er det nok å bare være til stede.");
+        }
+        
+        if (game.score === 10) {
+          showPowerupMessage("🌊 10 mil med ro i sjelen... havet lærer oss tålmodighet.");
+        }
+        
+        if (game.score === 15) {
+          showPowerupMessage("☕ 15 mil... kanskje det er på tide med en pause?");
+        }
+        
+        if (game.score === 25) {
+          showPowerupMessage("🌅 25 rolige mil... hver nautisk mil er en lærdom.");
+        }
+        
+        if (game.score === 40) {
+          showPowerupMessage("🕊️ 40 mil i ro og mak... dette er seiling!");
+        }
+      } else {
+        if (game.score === 6) {
+          showPowerupMessage("🌍 6 nautiske mil! Som Thomas' 6 år rundt jorda! 🌍");
+          game.score += 3;
+        }
+        
+        if (game.score === 13) {
+          showPowerupMessage("📮 Flaskepost fra havet! 📮");
+          game.score += 2;
+        }
+        
+        if (game.score === 20) {
+          showPowerupMessage("📺 NRK svarer fortsatt ikke... 📺");
+        }
+        
+        if (game.score === 30) {
+          showPowerupMessage("⛵ Thomas blir en bedre seiler! ⛵");
+        }
+        
+        if (game.score === 50) {
+          showPowerupMessage("🏢 Tilbake til Homansbyen! 🏢");
+          game.score += 5;
+        }
+      }
+    }
+
+    // Event listeners
+    document.addEventListener('keydown', (e) => {
+      game.keys[e.key] = true;
+      
+      if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        if (game.gameRunning) {
+          game.gameRunning = false;
+        } else if (game.gameStarted) {
+          game.gameRunning = true;
+          gameLoop();
+        }
+      }
+      
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', ' ', 'w', 'a', 's'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      game.keys[e.key] = false;
+    });
+
+    // Initialize when page loads
+    window.addEventListener('load', initGame);
+    
+    // Handle orientation changes
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        const container = document.querySelector('.game-container');
+        const rect = container.getBoundingClientRect();
+        game.canvas.width = Math.min(800, rect.width - 20);
+        game.canvas.height = Math.min(600, rect.height - 140);
+        game.width = game.canvas.width;
+        game.height = game.canvas.height;
+        game.waterLevel = game.height * 0.8;
+      }, 100);
+    });
+  </script>
+</body>
+</html>
