@@ -52,9 +52,15 @@
     .game-title {
       font-size: 2.5rem;
       font-weight: bold;
-      text-shadow: 3px 3px 0px #0d47a1, 0 0 20px rgba(255,255,255,0.5);
+      font-family: 'Brooklyn-Bold', 'NeueMachina-Ultrabold', 'Impact', Arial Black, sans-serif;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
       margin-bottom: 10px;
-      color: white;
+      color: #000000;
+      background: linear-gradient(135deg, #ffffff, #f0f0f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
     }
 
     .game-subtitle {
@@ -611,7 +617,7 @@
       <div class="thomas-quote" id="introQuote">"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"</div>
       <div style="margin-bottom: 20px; font-size: 0.9rem; opacity: 0.8;" id="introDescription">
         Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>
-        Plukk opp Red Bull for turbo og Attentin for slow-motion fokus!
+        Plukk opp powerups for spesielle evner og bonuspoeng!
       </div>
       
       <!-- Mode Selection -->
@@ -821,7 +827,7 @@
       if (mode === 'normal') {
         document.getElementById('normalModeBtn').classList.add('selected');
         document.getElementById('introQuote').textContent = '"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"';
-        document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>Plukk opp Red Bull for turbo og Attentin for slow-motion fokus!';
+        document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>Plukk opp powerups for spesielle evner og bonuspoeng!';
       } else if (mode === 'rollo') {
         document.getElementById('rolloModeBtn').classList.add('selected');
         document.getElementById('introQuote').textContent = '"Ro ned, Thomas... la oss bare nyte turen til festen. Ingen stress, bare havet og gleden."';
@@ -953,7 +959,7 @@
       
       // Reset intro text
       document.getElementById('introQuote').textContent = '"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"';
-      document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>Plukk opp Red Bull for turbo og Attentin for slow-motion fokus!';
+      document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>Plukk opp powerups for spesielle evner og bonuspoeng!';
       
       game.mode = 'normal';
       resetGame();
