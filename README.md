@@ -103,3 +103,4 @@ rollo-light/
 ---
 
 *Light-versjonen av Rollo Tomasi - alt du trenger, ingenting du ikke trenger! 🌊*
+# Deployment refresh Fri Sep 19 11:05:43 CEST 2025
