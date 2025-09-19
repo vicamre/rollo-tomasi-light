@@ -56,7 +56,7 @@
 
     .game-header {
       position: absolute;
-      top: 10px;
+      top: 5px;
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
@@ -65,23 +65,21 @@
     }
 
     .game-title {
-      font-size: clamp(1.2rem, 4vw, 2rem);
+      font-size: clamp(1rem, 3.5vw, 1.6rem);
       font-weight: bold;
-      font-family: 'Brooklyn-Bold', 'NeueMachina-Ultrabold', 'Impact', Arial Black, sans-serif;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-      margin-bottom: 5px;
-      color: #000000;
-      background: linear-gradient(135deg, #ffffff, #f0f0f0);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+      margin-bottom: 3px;
+      color: #ffffff;
+      text-stroke: 1px rgba(0,0,0,0.8);
+      -webkit-text-stroke: 1px rgba(0,0,0,0.8);
     }
 
     .game-subtitle {
-      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+      font-size: clamp(0.6rem, 2vw, 0.8rem);
       opacity: 0.9;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      color: #ffffff;
     }
 
     .back-link {
@@ -107,12 +105,12 @@
     }
 
     .game-canvas {
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      border: 2px solid rgba(255,255,255,0.2);
-      width: calc(100vw - 20px);
-      height: calc(100vh - 140px);
-      height: calc(100dvh - 140px);
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+      width: calc(100vw - 10px);
+      height: calc(100vh - 80px);
+      height: calc(100dvh - 80px);
       max-width: 100%;
       max-height: 100%;
     }
@@ -129,60 +127,47 @@
 
     .score-display {
       position: absolute;
-      top: 60px;
-      right: 15px;
-      background: rgba(0,0,0,0.4);
-      padding: 8px 15px;
-      border-radius: 10px;
+      top: 30px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 12px;
+      border-radius: 8px;
       backdrop-filter: blur(10px);
-      border: 2px solid rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
     }
 
     .score-number {
-      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      font-size: clamp(1rem, 3.5vw, 1.4rem);
       font-weight: bold;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
       color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     }
 
     .score-label {
-      font-size: clamp(0.6rem, 2vw, 0.8rem);
+      font-size: clamp(0.5rem, 1.8vw, 0.7rem);
       opacity: 0.8;
       text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     }
 
     .boost-indicator {
       position: absolute;
-      top: 60px;
-      left: 15px;
-      background: rgba(67,160,71,0.4);
-      padding: 8px 15px;
-      border-radius: 10px;
+      top: 30px;
+      left: 10px;
+      background: rgba(67,160,71,0.6);
+      padding: 6px 12px;
+      border-radius: 8px;
       backdrop-filter: blur(10px);
-      border: 2px solid rgba(67,160,71,0.6);
+      border: 1px solid rgba(67,160,71,0.8);
       transform: scale(0);
       transition: transform 0.3s ease;
-      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+      font-size: clamp(0.6rem, 2vw, 0.8rem);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     }
 
     .boost-indicator.active {
       transform: scale(1);
-    }
-
-    .controls-hint {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      background: rgba(0,0,0,0.4);
-      padding: 8px 15px;
-      border-radius: 10px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.2);
-      font-size: clamp(0.6rem, 2vw, 0.8rem);
-      opacity: 0.9;
-      max-width: calc(100vw - 20px);
     }
 
     .mobile-touch-area {
@@ -190,9 +175,9 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 40%;
-      background: rgba(255,255,255,0.05);
-      border-top: 2px solid rgba(255,255,255,0.1);
+      height: 35%;
+      background: rgba(255,255,255,0.03);
+      border-top: 1px solid rgba(255,255,255,0.08);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -201,12 +186,14 @@
     }
 
     .touch-instruction {
-      font-size: clamp(1rem, 4vw, 1.5rem);
-      font-weight: bold;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-      opacity: 0.8;
+      font-size: clamp(0.8rem, 3vw, 1.2rem);
+      font-weight: 500;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      opacity: 0.6;
       text-align: center;
-      padding: 20px;
+      padding: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      color: #ffffff;
     }
 
     .game-over-screen, .thomas-intro {
@@ -215,15 +202,16 @@
       left: 50%;
       transform: translate(-50%, -50%);
       background: rgba(0,0,0,0.9);
-      padding: clamp(20px, 5vw, 30px);
-      border-radius: 15px;
+      padding: clamp(15px, 4vw, 25px);
+      border-radius: 12px;
       backdrop-filter: blur(20px);
-      border: 2px solid rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.3);
       text-align: center;
       z-index: 1000;
-      max-width: calc(100vw - 40px);
-      max-height: calc(100vh - 40px);
+      max-width: calc(100vw - 20px);
+      max-height: calc(100vh - 20px);
       overflow-y: auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     }
 
     .thomas-intro {
@@ -408,26 +396,7 @@
       to { transform: translateX(calc(100vw + 50px)); }
     }
 
-    /* Hide desktop-only elements */
-    @media (max-width: 768px) {
-      .desktop-controls {
-        display: none;
-      }
-      
-      .mobile-controls {
-        display: inline;
-      }
-    }
-
-    @media (min-width: 769px) {
-      .desktop-controls {
-        display: inline;
-      }
-      
-      .mobile-controls {
-        display: none;
-      }
-    }
+    /* Mobile-first design - no desktop controls needed */
   </style>
 </head>
 <body>
@@ -463,15 +432,8 @@
     <!-- Mobile Touch Area -->
     <div class="mobile-touch-area" id="touchArea">
       <div class="touch-instruction">
-        🖐️ TRYKK HER FOR Å LØFTE SEIL 🖐️
+        TRYKK FOR Å LØFTE SEIL
       </div>
-    </div>
-
-    <div class="controls-hint">
-      <strong>🎮 KONTROLLER:</strong> 
-      <span class="desktop-controls">Piltast opp / W / Space = Løft seil • P = Pause</span>
-      <span class="mobile-controls">Trykk på skjermen = Løft seil</span> 
-      • Unngå skjær og kom trygt til festen!
     </div>
 
     <!-- Intro Screen -->
@@ -605,11 +567,11 @@
       game.canvas = document.getElementById('gameCanvas');
       game.ctx = game.canvas.getContext('2d');
       
-      // Adjust canvas size for mobile
+      // Adjust canvas size for mobile - fill more of the screen
       const container = document.querySelector('.game-container');
       const rect = container.getBoundingClientRect();
-      game.canvas.width = Math.min(800, rect.width - 20);
-      game.canvas.height = Math.min(600, rect.height - 140);
+      game.canvas.width = Math.min(900, rect.width - 10);
+      game.canvas.height = Math.min(700, rect.height - 80);
       game.width = game.canvas.width;
       game.height = game.canvas.height;
       game.waterLevel = game.height * 0.8;
@@ -1539,8 +1501,8 @@
       setTimeout(() => {
         const container = document.querySelector('.game-container');
         const rect = container.getBoundingClientRect();
-        game.canvas.width = Math.min(800, rect.width - 20);
-        game.canvas.height = Math.min(600, rect.height - 140);
+        game.canvas.width = Math.min(900, rect.width - 10);
+        game.canvas.height = Math.min(700, rect.height - 80);
         game.width = game.canvas.width;
         game.height = game.canvas.height;
         game.waterLevel = game.height * 0.8;
