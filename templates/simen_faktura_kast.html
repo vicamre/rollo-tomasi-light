@@ -284,6 +284,8 @@
             padding: 40px;
             text-align: center;
             max-width: 500px;
+            position: relative;
+            z-index: 300;
         }
 
         .game-over-title {
@@ -374,7 +376,7 @@
         </div>
 
         <div class="instructions">
-            <strong>🎯 Simen's Faktura Kast:</strong> Klikk på fakturaene som flyr mot Simen for å kaste dem bort! 
+            <strong>🎯 Simen's Faktura Kast:</strong> <span style="color: var(--neon-yellow); font-weight: bold;">KLIKK PÅ FAKTURAENE</span> som flyr mot Simen for å kaste dem bort! 
             Få poeng for hver faktura du treffer og hør Simen-sitater!
         </div>
 
@@ -389,6 +391,7 @@
         <div class="controls">
             <button class="control-btn" id="startBtn">🚀 Start Spill</button>
             <button class="control-btn" id="pauseBtn">⏸️ Pause</button>
+            <button class="control-btn" id="backBtn">🏠 Tilbake til hovedside</button>
         </div>
 
         <div class="game-over-screen" id="gameOverScreen">
@@ -399,6 +402,7 @@
                     "Du kastet fakturaer som en mester!"
                 </div>
                 <button class="restart-btn" onclick="restartGame()">🎯 Spill igjen</button>
+                <button class="restart-btn" onclick="goHome()" style="background: var(--neon-blue); margin-left: 10px;">🏠 Tilbake til hovedside</button>
             </div>
         </div>
     </div>
@@ -470,6 +474,11 @@
             setupEventListeners() {
                 document.getElementById('startBtn').addEventListener('click', () => this.startGame());
                 document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
+                document.getElementById('backBtn').addEventListener('click', () => this.goHome());
+            }
+            
+            goHome() {
+                window.location.href = '/';
             }
             
             startGame() {
@@ -487,7 +496,7 @@
             
             showCountdown(count) {
                 if (count > 0) {
-                    this.simenQuoteElement.textContent = `Starter om ${count}...`;
+                    this.simenQuoteElement.textContent = `Starter om ${count}... KLIKK PÅ FAKTURAENE!`;
                     this.simenQuoteElement.style.fontSize = '3rem';
                     this.simenQuoteElement.style.color = '#ff6b35';
                     this.simenQuoteElement.style.animation = 'fadeInBounce 0.8s ease';
@@ -790,8 +799,26 @@
                 game.sounds.backgroundMusic.currentTime = 0;
                 // Clear fakturaer
                 document.querySelectorAll('.faktura').forEach(f => f.remove());
+                // Reset game state properly
+                game.gameRunning = false;
+                game.gamePaused = false;
+                game.score = 0;
+                game.timeLeft = 60;
+                game.fakturaCount = 0;
+                game.combo = 0;
+                game.lastHitTime = 0;
+                game.missedFakturaer = 0;
+                // Update UI
+                game.updateUI();
+                // Start new game
+                game.startGame();
+            } else {
+                game = new SimenFakturaKast();
             }
-            game = new SimenFakturaKast();
+        }
+        
+        function goHome() {
+            window.location.href = '/';
         }
         
         // Start game when page loads
