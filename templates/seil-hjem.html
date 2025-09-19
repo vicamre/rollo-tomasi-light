@@ -2,8 +2,11 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8" />
-  <title>Seil Thomas hjem ⛵</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seil Thomas til Dagslysfesten! ⛵</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <style>
     :root {
       --sea-blue: #1e88e5;
@@ -60,6 +63,29 @@
       text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
 
+    /* Mobile title adjustments */
+    @media (max-width: 768px) {
+      .game-title {
+        font-size: 1.8rem;
+        margin-bottom: 5px;
+      }
+      
+      .game-subtitle {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .game-title {
+        font-size: 1.5rem;
+        margin-bottom: 3px;
+      }
+      
+      .game-subtitle {
+        font-size: 0.8rem;
+      }
+    }
+
     .back-link {
       position: absolute;
       top: 20px;
@@ -91,6 +117,34 @@
       max-height: 75vh;
       width: auto;
       height: auto;
+      /* Mobile optimizations */
+      touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Mobile-specific canvas sizing */
+    @media (max-width: 768px) {
+      .game-canvas {
+        width: 100vw;
+        height: 60vh;
+        max-width: 100vw;
+        max-height: 60vh;
+        border-radius: 10px;
+        border-width: 2px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .game-canvas {
+        width: 100vw;
+        height: 55vh;
+        max-width: 100vw;
+        max-height: 55vh;
+        border-radius: 8px;
+        border-width: 1px;
+      }
     }
 
     .hud {
@@ -127,6 +181,41 @@
       text-align: center;
     }
 
+    /* Mobile HUD adjustments */
+    @media (max-width: 768px) {
+      .score-display {
+        top: 60px;
+        right: 15px;
+        padding: 10px 15px;
+        border-radius: 10px;
+      }
+      
+      .score-number {
+        font-size: 1.8rem;
+      }
+      
+      .score-label {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .score-display {
+        top: 50px;
+        right: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+      }
+      
+      .score-number {
+        font-size: 1.5rem;
+      }
+      
+      .score-label {
+        font-size: 0.7rem;
+      }
+    }
+
     .boost-indicator {
       position: absolute;
       top: 80px;
@@ -157,6 +246,27 @@
       border: 1px solid rgba(255,255,255,0.2);
       font-size: 0.9rem;
       opacity: 0.8;
+    }
+
+    /* Mobile controls hint */
+    @media (max-width: 768px) {
+      .controls-hint {
+        bottom: 20px;
+        padding: 10px 15px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        max-width: 90%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .controls-hint {
+        bottom: 15px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        max-width: 95%;
+      }
     }
 
     .game-over-screen {
@@ -382,6 +492,74 @@
       from { transform: translateX(-100px); }
       to { transform: translateX(calc(100vw + 100px)); }
     }
+
+    /* Mobile touch controls */
+    .mobile-touch-controls {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 40;
+      display: none;
+    }
+
+    .touch-area {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .touch-hint {
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 20px 30px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+      border: 2px solid rgba(255,255,255,0.3);
+      backdrop-filter: blur(10px);
+      opacity: 0.8;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Show mobile controls on mobile devices */
+    @media (max-width: 768px) {
+      .mobile-touch-controls {
+        display: block;
+      }
+      
+      .desktop-controls {
+        display: none;
+      }
+      
+      .mobile-controls {
+        display: inline;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .desktop-controls {
+        display: inline;
+      }
+      
+      .mobile-controls {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -393,8 +571,8 @@
 
     <!-- Header -->
     <div class="game-header">
-      <div class="game-title">⛵ SEIL THOMAS HJEM ⛵</div>
-      <div class="game-subtitle">Et maritimt eventyr med vind og bølger</div>
+      <div class="game-title">⛵ SEIL THOMAS TIL DAGSLYSFESTEN! ⛵</div>
+      <div class="game-subtitle">Et maritimt eventyr på vei til festen</div>
     </div>
 
     <a class="back-link" href="{{ url_for('index') }}">← Tilbake til hovedsiden</a>
@@ -415,7 +593,14 @@
     </div>
 
     <div class="controls-hint">
-      <strong>🎮 KONTROLLER:</strong> Piltast opp / W / Space = Løft seil • P = Pause • Unngå skjær og kom trygt hjem!
+      <strong>🎮 KONTROLLER:</strong> <span class="desktop-controls">Piltast opp / W / Space = Løft seil • P = Pause</span><span class="mobile-controls">Trykk på skjermen = Løft seil</span> • Unngå skjær og kom trygt til festen!
+    </div>
+
+    <!-- Mobile touch controls -->
+    <div class="mobile-touch-controls" id="mobileTouchControls">
+      <div class="touch-area" id="touchArea">
+        <div class="touch-hint">Trykk her for å seile</div>
+      </div>
     </div>
 
     <!-- Intro Screen -->
@@ -423,9 +608,9 @@
       <div class="thomas-avatar">
         <img src="{{ url_for('static', filename='assets/img/thomas-animert-1.png') }}" alt="Thomas" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
       </div>
-      <div class="thomas-quote" id="introQuote">"La oss seile hjem gjennom skjærgården! Vind i seilene og fri for alle møter."</div>
+      <div class="thomas-quote" id="introQuote">"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"</div>
       <div style="margin-bottom: 20px; font-size: 0.9rem; opacity: 0.8;" id="introDescription">
-        Hjelp Thomas navigere seilbåten trygt gjennom farlige skjær.<br>
+        Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>
         Plukk opp Red Bull for turbo og Attentin for slow-motion fokus!
       </div>
       
@@ -501,11 +686,11 @@
       // Rollo mode settings
       mode: 'normal', // 'normal' or 'rollo'
       crashMessages: [
-        "Jeg må komme meg trygt hjem til middag!",
-        "Dette er hvorfor jeg seiler - for å nyte naturen!",
+        "Jeg må komme meg trygt til Dagslysfesten!",
+        "Dette er hvorfor jeg seiler - for å nyte naturen på vei til fest!",
         "Victoria hadde fikset dette med AI...",
-        "Håper familien venter på meg hjemme!",
-        "Det blir godt å komme i havn igjen...",
+        "Håper de andre venter på meg på festen!",
+        "Det blir godt å komme frem til Dagslysfesten...",
         "Jeg savner de 6 årene på havet - der var det enklere!",
         "NRK svarer fortsatt ikke på e-postene mine...",
         "Flaskepost fra havet var lettere å lage enn dette!"
@@ -549,6 +734,41 @@
       
       // Set up smooth rendering
       game.ctx.imageSmoothingEnabled = true;
+      
+      // Mobile device detection and canvas sizing
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+      
+      if (isMobile) {
+        // Set canvas size for mobile
+        const canvasContainer = game.canvas.parentElement;
+        const containerWidth = canvasContainer.clientWidth;
+        const containerHeight = window.innerHeight * 0.6; // 60% of viewport height
+        
+        game.canvas.width = containerWidth;
+        game.canvas.height = containerHeight;
+        game.width = containerWidth;
+        game.height = containerHeight;
+        
+        // Adjust player size for mobile
+        game.player.width = Math.max(40, containerWidth * 0.08);
+        game.player.height = Math.max(40, containerHeight * 0.1);
+        
+        // Adjust water level for mobile
+        game.waterLevel = containerHeight * 0.75;
+        
+        // Show mobile touch controls
+        document.getElementById('mobileTouchControls').style.display = 'block';
+      } else {
+        // Desktop sizing
+        game.canvas.width = 1200;
+        game.canvas.height = 800;
+        game.width = 1200;
+        game.height = 800;
+        game.waterLevel = 600;
+        
+        // Hide mobile touch controls
+        document.getElementById('mobileTouchControls').style.display = 'none';
+      }
       
       // Preload Thomas avatar
       game.thomasAvatar = new Image();
@@ -600,12 +820,12 @@
       
       if (mode === 'normal') {
         document.getElementById('normalModeBtn').classList.add('selected');
-        document.getElementById('introQuote').textContent = '"La oss seile hjem gjennom skjærgården! Vind i seilene og fri for alle møter."';
-        document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt gjennom farlige skjær.<br>Plukk opp Red Bull for turbo og Attentin for slow-motion fokus!';
+        document.getElementById('introQuote').textContent = '"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"';
+        document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>Plukk opp Red Bull for turbo og Attentin for slow-motion fokus!';
       } else if (mode === 'rollo') {
         document.getElementById('rolloModeBtn').classList.add('selected');
-        document.getElementById('introQuote').textContent = '"Ro ned, Thomas... la oss bare nyte turen hjem. Ingen stress, bare havet og tankene våre."';
-        document.getElementById('introDescription').innerHTML = 'En rolig og avslappende seiltur for Thomas.<br>Færre hindringer, roligere fart, mer tid til refleksjon.';
+        document.getElementById('introQuote').textContent = '"Ro ned, Thomas... la oss bare nyte turen til festen. Ingen stress, bare havet og gleden."';
+        document.getElementById('introDescription').innerHTML = 'En rolig og avslappende seiltur til Dagslysfesten.<br>Færre hindringer, roligere fart, mer tid til å glede seg til festen.';
       }
       
       // Enable start button
@@ -653,6 +873,12 @@
 
     function startGame() {
       document.getElementById('introScreen').style.display = 'none';
+      
+      // Hide mobile touch hint when starting
+      const touchHint = document.querySelector('.touch-hint');
+      if (touchHint) {
+        touchHint.style.display = 'none';
+      }
       
       // Show countdown
       showCountdown(() => {
@@ -712,6 +938,12 @@
       document.getElementById('gameOverScreen').style.display = 'none';
       document.getElementById('introScreen').style.display = 'block';
       
+      // Show mobile touch hint again
+      const touchHint = document.querySelector('.touch-hint');
+      if (touchHint) {
+        touchHint.style.display = 'block';
+      }
+      
       // Reset to mode selection
       document.getElementById('normalModeBtn').classList.remove('selected');
       document.getElementById('rolloModeBtn').classList.remove('selected');
@@ -720,8 +952,8 @@
       document.getElementById('startBtn').textContent = 'Velg modus først';
       
       // Reset intro text
-      document.getElementById('introQuote').textContent = '"La oss seile hjem gjennom skjærgården! Vind i seilene og fri for alle møter."';
-      document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt gjennom farlige skjær.<br>Plukk opp Red Bull for turbo og Attentin for slow-motion fokus!';
+      document.getElementById('introQuote').textContent = '"La oss seile til Dagslysfesten! Vind i seilene og fest i sikte!"';
+      document.getElementById('introDescription').innerHTML = 'Hjelp Thomas navigere seilbåten trygt til Dagslysfesten!<br>Plukk opp Red Bull for turbo og Attentin for slow-motion fokus!';
       
       game.mode = 'normal';
       resetGame();
@@ -766,7 +998,7 @@
       if (game.player.y < 0 || game.player.y + game.player.height > game.height) {
         const boundaryMessage = game.mode === 'rollo' ? 
           "Kanskje vi skulle ha holdt oss nærmere midten..." : 
-          "Thomas seilte utenfor kursen!";
+          "Thomas seilte utenfor kursen til Dagslysfesten!";
         gameOver(boundaryMessage);
         return;
       }
@@ -1631,6 +1863,11 @@
       e.preventDefault();
       if (game.gameRunning) {
         game.keys[' '] = true;
+        // Hide touch hint when game starts
+        const touchHint = document.querySelector('.touch-hint');
+        if (touchHint) {
+          touchHint.style.display = 'none';
+        }
       }
     }, { passive: false });
 
@@ -1638,6 +1875,50 @@
       e.preventDefault();
       game.keys[' '] = false;
     }, { passive: false });
+
+    // Mobile touch area controls
+    const touchArea = document.getElementById('touchArea');
+    if (touchArea) {
+      touchArea.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (game.gameRunning) {
+          game.keys[' '] = true;
+          // Hide touch hint when game starts
+          const touchHint = document.querySelector('.touch-hint');
+          if (touchHint) {
+            touchHint.style.display = 'none';
+          }
+        }
+      }, { passive: false });
+
+      touchArea.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        game.keys[' '] = false;
+      }, { passive: false });
+    }
+
+    // Handle window resize for mobile orientation changes
+    window.addEventListener('resize', () => {
+      if (game.canvas) {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        
+        if (isMobile) {
+          const canvasContainer = game.canvas.parentElement;
+          const containerWidth = canvasContainer.clientWidth;
+          const containerHeight = window.innerHeight * 0.6;
+          
+          game.canvas.width = containerWidth;
+          game.canvas.height = containerHeight;
+          game.width = containerWidth;
+          game.height = containerHeight;
+          game.waterLevel = containerHeight * 0.75;
+          
+          // Adjust player size
+          game.player.width = Math.max(40, containerWidth * 0.08);
+          game.player.height = Math.max(40, containerHeight * 0.1);
+        }
+      }
+    });
 
     // Initialize when page loads
     window.addEventListener('load', initGame);
